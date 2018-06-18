@@ -1,6 +1,12 @@
+unlet! skip_defaults_vim
+silent! source $VIMRUNTIME/defaults.vim
+
 "------------------------------------------
 " ##### plugins
 call plug#begin('~/.vim/plugged')
+
+" minimal setting
+Plug 'tpope/vim-sensible'
 
 " development tools
 Plug 'w0rp/ale'
@@ -63,132 +69,125 @@ highlight Comment cterm=italic
 
 
 "------------------------------------------
-" ##### general
+" ##### BASIC
 
-set nocompatible
-let mapleader = ","
-let g:mapleader = ","
-set nomodeline                  " disable modeline
-set autoread                    " automatically reload files changed outside of Vim
-set wildmenu
-"set wildmode=list:full          " list all matches and complete first match when more than one match
-set wildignore=*.o,*~,*.pyc
-if has("win16") || has("win32")
-    set wildignore+=.git\*,.hg\*,.svn\*
-else
-    set wildignore+=*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
-endif
-set nobackup                    " no backup files
-set nowritebackup               " do not backup before overwriting a file
-set noswapfile                  " do not write annoying intermediate swap files
+let mapleader = ' '
+let maplocalleader = ' '
+
+" define command group
+augroup vimrc
+      autocmd!
+augroup END
+
+set number
+set nomodeline
+set autoindent
+set smartindent
+set lazyredraw                  " do not update the display while executing macros
+set laststatus=2                " always show statusline
+set showcmd                     " shows visual selection info
+set visualbell t_vb=            " no beeping
+set backspace=indent,eol,start
+set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
+set shortmess=aIT               " short message
+set hlsearch
+set incsearch
+set hidden                      " buffers become hidden when abandoned
 set ignorecase                  " ignore case when searching
 set smartcase
-set showcmd                     " shows visual selection info
-set magic                       " the special characters that can be used in search patterns
-set noerrorbells                " no error bell
-set visualbell t_vb=            " no beeping
-set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
-if has("gui_macvim")            " no annoying sound on errors
-    autocmd GUIEnter * set vb t_vb=
-endif
-set history=500                 " allow more history remembered
-set clipboard=unnamed           " global clipboard
-set completeopt=menu
-
-
-"------------------------------------------
-" ##### edit
-
-set noshowmode                  " do not show what mode because we already have statusline
+set wildmenu
+set wildmode=full
 set tabstop=4                   " a tab is four spaces
 set shiftwidth=4                " number of spaces to use for each step of (auto)indent
 set expandtab                   " use the appropriate number of spaces to insert a tab
-set softtabstop=4               " when using <BS>, four spaces are considered a tab
 set smarttab                    " insert blanks according to shiftwidth
+set scrolloff=9
+set encoding=utf-8
+set virtualedit=block           " allow virtual editing only in visual block mode
+set nolist                      " do not show invisible characters
+set nojoinspaces
+set diffopt=filler,vertical
+set autoread
+set clipboard=unnamed           " global clipboard
+set foldlevelstart=99           " start editing with no folds closed
+set completeopt=menuone,preview
+silent! set cryptmethod=blowfish2
+set noshowmode                  " do not show what mode because we already have statusline
+set history=500                 " allow more history remembered
+set softtabstop=4               " when using <BS>, four spaces are considered a tab
 set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
-set backspace=indent,eol,start  " allow backspacing over everything in insert mode
-set autoindent                  " autoindent on
-set copyindent                  " copy the indentation of the existing lines when autoindenting a new line
 set showmatch                   " show matching parenthesis
 set matchtime=2                 " tenths of a second to show the matching paren
-set virtualedit=all             " allow the cursor to go in to invalid place
-set gdefault                    " all matches in a line are substituted instead of one
-set foldenable                  " enable folding
-set foldcolumn=1                " add a fold column
-
-"------------------------------------------
-" ##### UI
-
-set scrolloff=9                 " nine number of screen lines to keep above and below the cursor
-set relativenumber              " show relative line number
-set number                      " show line number
-set ruler                       " show cursor position
-set cmdheight=2                 " two lines for the command-line
-set hidden                      " buffers become hidden when abandoned
-set hlsearch                    " highlight all matches
-set incsearch                   " show matches as typing
-set textwidth=500               " at most 500 chars a line
-set linebreak                   " wrap long lines
-set nowrap                      " do not wrap lines
-set nolist                      " do not show invisible characters
-set lazyredraw                  " do not update the display while executing macros
-set encoding=utf8
-set laststatus=2                " always show statusline
-set guifont=Hack:h12,Menlo:h12
-set switchbuf=usetab
-set ambiwidth=double            " must have for unicode
-set conceallevel=2              " conceal except current line
+set complete-=i                 " dont scan the current and included files
+set colorcolumn=80
+set nostartofline
+set directory=/tmp//,.
+set backupdir=/tmp//,.
+set undodir=/tmp//,.
+silent! set ttymouse=xterm2
+set mouse=a
 
 
 "------------------------------------------
-" ##### mapping
+" ##### key mappings
 
-nmap <leader>w :w!<cr>
-inoremap ii <esc>
-" fasten entering command
 nnoremap ; :
 nnoremap <leader>; ;
-" remap search
-map <space> /
-map <c-space> ?
-" stop highlighing of matches
-map <silent> <leader><cr> :nohlsearch<cr>
-" buffer mannagement
-map <leader>q :bd!<CR>
-map <leader>ba :bufdo bd<cr>
-map <leader>bh :bprevious<cr>
-map <leader>bl :bnext<cr>
-" tab management
-map <leader>tn :tabnew<cr>
-map <leader>to :tabonly<cr>
-map <leader>tc :tabclose<cr>
-map <leader>tm :tabmove
-map <leader>th :tabprevious<cr>
-map <leader>tl :tabnext<cr>
-map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
-" toggle between last accessed tab and current one
-let g:lasttab = 1
-nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
-au TabLeave * let g:lasttab = tabpagenr()
-" remap
-map 0 ^
+nnoremap 0 ^
+cnoremap $v e ~/.vimrc
+
+" save
+inoremap <C-s>     <C-O>:update<cr>
+nnoremap <C-s>     :update<cr>
+nnoremap <leader>s :update<cr>
+nnoremap <leader>w :update<cr>
+
+" open new line below and above current line
+nnoremap <leader>o o<esc>
+nnoremap <leader>O O<esc>
+
+" quit
+inoremap <C-Q>     <esc>:q<cr>
+nnoremap <C-Q>     :q<cr>
+vnoremap <C-Q>     <esc>
+nnoremap <Leader>q :q<cr>
+nnoremap <Leader>Q :qa!<cr>
+
+" movement in insert mode
+inoremap <C-h> <C-o>h
+inoremap <C-l> <C-o>a
+inoremap <C-j> <C-o>j
+inoremap <C-k> <C-o>k
+inoremap <C-^> <C-o><C-^>
+
+" quickfix
+nnoremap ]q :cnext<cr>zz
+nnoremap [q :cprev<cr>zz
+nnoremap ]l :lnext<cr>zz
+nnoremap [l :lprev<cr>zz
+
+" buffer
+nnoremap ]b :bnext<cr>
+nnoremap [b :bprev<cr>
+
 " for scratch
 map <leader>e :e ~/workplace/tmp/buffer.md<cr>
-" no gui elements
-set guioptions=
-" command line
-cno $v e ~/.vimrc
-" toggle show/hide invisible chars
-nnoremap <leader>i :set list!<cr>
+
 " fasten scrolling
 nnoremap <C-e> 2<C-e>
 nnoremap <C-y> 2<C-y>
-nnoremap <leader>b Oimport pdb; pdb.set_trace()<Esc>
+
 " move lines
-nnoremap gj :m .+1<CR>==
-nnoremap gk :m .-2<CR>==
-vnoremap gj :m '>+1<CR>gv=gv
-vnoremap gk :m '<-2<CR>gv=gv
+nnoremap <silent> <C-k> :move-2<cr>
+nnoremap <silent> <C-j> :move+<cr>
+nnoremap <silent> <C-h> <<
+nnoremap <silent> <C-l> >>
+xnoremap <silent> <C-k> :move-2<cr>gv
+xnoremap <silent> <C-j> :move'>+<cr>gv
+xnoremap <silent> <C-h> <gv
+xnoremap <silent> <C-l> >gv
+xnoremap < <gv
+xnoremap > >gv
 
 
 "------------------------------------------

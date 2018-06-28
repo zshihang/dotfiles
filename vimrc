@@ -5,9 +5,6 @@ silent! source $VIMRUNTIME/defaults.vim
 " ##### plugins
 call plug#begin('~/.vim/plugged')
 
-" minimal setting
-Plug 'tpope/vim-sensible'
-
 " development tools
 Plug 'w0rp/ale'
 Plug 'ervandew/supertab'
@@ -16,25 +13,29 @@ Plug 'justinmk/vim-dirvish'
 Plug 'godlygeek/tabular'
 Plug 'tpope/vim-fugitive'
 Plug 'airblade/vim-gitgutter'
-Plug '/usr/local/opt/fzf' " install fzf using brew
-" Plug '~/.fzf' " install fzf using git
+Plug '/usr/local/opt/fzf' " installed fzf using brew
+" Plug '~/.fzf' " installed fzf using git
 Plug 'junegunn/fzf.vim'
 Plug 'itchyny/lightline.vim'
 Plug 'maximbaz/lightline-ale'
-Plug 'ludovicchabant/vim-gutentags'
-Plug 'jmcantrell/vim-virtualenv'
 Plug 'tyru/open-browser.vim'
 
 " edit tools
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-repeat' " . to repeat last command 
 Plug 'tpope/vim-commentary'
-Plug 'sjl/gundo.vim'
+Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 Plug 'terryma/vim-expand-region'
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'beloglazov/vim-online-thesaurus'
 Plug 'michaeljsmith/vim-indent-object'
 Plug 'Raimondi/delimitMate'
 Plug 'ntpeters/vim-better-whitespace'
 Plug 'nathanaelkane/vim-indent-guides'
+
+" c/c++
+Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
 
 " markdown
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -241,10 +242,12 @@ map <c-b> :Buffers<cr>
 map <c-t> :BTags<cr>
 map <c-l> :BLines<cr>
 
-" @gundo
-nnoremap <leader>u :GundoToggle<CR>
+" @vim-mundo
+set undofile
+set undodir=~/.vim/undo
+nnoremap U :MundoToggle<CR>
 if has('python3')
-    let g:gundo_prefer_python3 = 1
+    let g:mundo_prefer_python3 = 1
 endif
 
 " @vim-better-whitespace
@@ -275,7 +278,7 @@ let g:lightline = {
       \ 'colorscheme': 'wombat',
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
-      \             ['fugitive', 'readonly', 'filename', 'modified', 'virtualenv', 'gutentags'] ],
+      \             ['fugitive', 'readonly', 'filename', 'modified'] ],
       \   'right': [ [ 'lineinfo' ], ['percent'],  ['linter_errors', 'linter_warnings', 'linter_ok'] ]
       \ },
       \ 'tabline': {
@@ -286,8 +289,6 @@ let g:lightline = {
       \   'readonly': '%{&filetype=="help"?"":&readonly?"x":""}',
       \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
       \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
-      \   'virtualenv': '%{virtualenv#statusline()}',
-      \   'gutentags': '%{gutentags#statusline()}',
       \ },
       \ 'component_visible_condition': {
       \   'readonly': '(&filetype!="help"&& &readonly)',

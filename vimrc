@@ -1,40 +1,62 @@
 unlet! skip_defaults_vim
 silent! source $VIMRUNTIME/defaults.vim
 
-"------------------------------------------
-" ##### plugins
+
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## PLUGINS #
+"------------------------------------------------------------------------------
+
 call plug#begin('~/.vim/plugged')
 
-" development tools
-Plug 'w0rp/ale'
-Plug 'ervandew/supertab'
-Plug 'majutsushi/tagbar'
-Plug 'justinmk/vim-dirvish'
-Plug 'godlygeek/tabular'
-Plug 'tpope/vim-fugitive'
-Plug 'airblade/vim-gitgutter'
-Plug '/usr/local/opt/fzf' " installed fzf using brew
-" Plug '~/.fzf' " installed fzf using git
-Plug 'junegunn/fzf.vim'
-Plug 'itchyny/lightline.vim'
-Plug 'maximbaz/lightline-ale'
-Plug 'tyru/open-browser.vim'
-
-" edit tools
+" edit
+Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat' " . to repeat last command 
-Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-repeat' " . to repeat last command
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 Plug 'terryma/vim-expand-region'
 Plug 'AndrewRadev/splitjoin.vim'
-Plug 'beloglazov/vim-online-thesaurus'
-Plug 'michaeljsmith/vim-indent-object'
 Plug 'Raimondi/delimitMate'
 Plug 'ntpeters/vim-better-whitespace'
-Plug 'nathanaelkane/vim-indent-guides'
+
+" view
+Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
+Plug 'justinmk/vim-dirvish'
+Plug 'justinmk/vim-gtfo'
+
+" navigate
+Plug '/usr/local/opt/fzf' " installed fzf using brew
+" Plug '~/.fzf' " installed fzf using git
+Plug 'junegunn/fzf.vim'
+
+" code
+Plug 'w0rp/ale'
+Plug 'ervandew/supertab'
+Plug 'tpope/vim-commentary'
+Plug 'michaeljsmith/vim-indent-object' " ai, ii, aI, iI
+
+" vcs
+Plug 'mhinz/vim-signify'
+Plug 'tpope/vim-fugitive'
+
+" tools
+Plug 'tyru/open-browser.vim'
+Plug 'zerowidth/vim-copy-as-rtf'
+" Plug 'beloglazov/vim-online-thesaurus' not working now
+
+" appearance
+Plug 'itchyny/lightline.vim'
+Plug 'maximbaz/lightline-ale'
+
+" themes
+Plug 'jnurmine/Zenburn'
+Plug 'morhetz/gruvbox'
+Plug 'AlessandroYorba/Despacio'
+Plug 'romainl/Apprentice'
+Plug 'junegunn/seoul256.vim'
 
 " c/c++
-Plug 'octol/vim-cpp-enhanced-highlight'
+Plug 'bfrg/vim-cpp-modern', { 'for': ['c', 'cpp'] }
 Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
 
 " markdown
@@ -47,38 +69,37 @@ Plug 'lervag/vimtex', { 'for': 'tex' }
 " python
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'hdima/python-syntax', { 'for': 'python' }
+Plug 'kh3phr3n/python-syntax'
 Plug 'mindriot101/vim-yapf', { 'for': 'python' }
 
 " java
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
-" go
+" golang
 Plug 'fatih/vim-go', { 'for': 'go'}
-
-" color schemes
-Plug 'jnurmine/Zenburn'
 
 call plug#end()
 
-set background=dark
-set t_Co=256
-colorscheme zenburn
-set t_ZH=[3m
-set t_ZR=[23m
-highlight Comment cterm=italic
 
-
-"------------------------------------------
-" ##### BASIC
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## BASIC #
+"------------------------------------------------------------------------------
 
 let mapleader = ' '
 let maplocalleader = ' '
 
 " define command group
 augroup vimrc
-      autocmd!
+    autocmd!
 augroup END
+
+" theme
+set t_Co=256
+colorscheme zenburn
+set t_ZH=[3m
+set t_ZR=[23m
+highlight Comment cterm=italic
 
 set number
 set nomodeline
@@ -129,8 +150,10 @@ silent! set ttymouse=xterm2
 set mouse=a
 
 
-"------------------------------------------
-" ##### key mappings
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## KEY MAPPINGS #
+"------------------------------------------------------------------------------
 
 nnoremap ; :
 nnoremap <leader>; ;
@@ -191,16 +214,87 @@ xnoremap < <gv
 xnoremap > >gv
 
 
-"------------------------------------------
-" ##### plugins settings
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## HANDY SCRIPTS #
+"------------------------------------------------------------------------------
 
-" @tagbar
-nmap <F8> :TagbarToggle<CR>
+" google / lucky
+function! s:goog(pat, lucky)
+    let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
+    let q = substitute(q, '[[:punct:] ]',
+                \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
+    call system(printf('open "https://www.google.com/search?%sq=%s"',
+                \ a:lucky ? 'btnI&' : '', q))
+endfunction
+
+nnoremap <leader>? :call <SID>goog(expand("<cWORD>"), 0)<cr>
+nnoremap <leader>! :call <SID>goog(expand("<cWORD>"), 1)<cr>
+xnoremap <leader>? "gy:call <SID>goog(@g, 0)<cr>gv
+xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv))']')'"'
+
+" a.vim
+function! s:a(cmd)
+  let name = expand('%:r')
+  let ext = tolower(expand('%:e'))
+  let sources = ['c', 'cc', 'cpp', 'cxx']
+  let headers = ['h', 'hh', 'hpp', 'hxx']
+  for pair in [[sources, headers], [headers, sources]]
+    let [set1, set2] = pair
+    if index(set1, ext) >= 0
+      for h in set2
+        let aname = name.'.'.h
+        for a in [aname, toupper(aname)]
+          if filereadable(a)
+            execute a:cmd a
+            return
+          end
+        endfor
+      endfor
+    endif
+  endfor
+endfunction
+command! A call s:a('e')
+command! AV call s:a('botright vertical split')
+
+" theme switcher
+function! s:colors(...)
+endfunction
+function! s:rotate_colors()
+  if !exists('s:colors')
+    let s:colors = filter(map(filter(split(globpath(&rtp,
+                   \                                'colors/*.vim'),
+                   \                       "\n"),
+                   \                 'v:val !~ "^/usr/"'),
+                   \          'fnamemodify(v:val, ":t:r")'),
+                   \      '!a:0 || stridx(v:val, a:1) >= 0')
+  endif
+  let name = remove(s:colors, 0)
+  call add(s:colors, name)
+  execute 'colorscheme' name
+  redraw
+  echo name
+endfunction
+nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
+
+
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## PLUGIN SETTINGS #
+"------------------------------------------------------------------------------
 
 " @open-browser
 let g:netrw_nogx = 1
 nmap gx <Plug>(openbrowser-smart-search)
 vmap gx <Plug>(openbrowser-smart-search)
+
+" @python-syntax
+let g:python_highlight_all = 1
+
+" @tagbar
+inoremap <F9> <esc>:TagbarToggle<cr>
+nnoremap <F9> :TagbarToggle<cr>
+let g:tagbar_sort = 0
 
 " @ale
 let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
@@ -215,7 +309,7 @@ nmap <silent> <leader>n <Plug>(ale_next_wrap)
 
 " @vim-markdown
 "let g:vim_markdown_folding_style_pythonic = 1
-"let g:vim_markdown_folding_level = 6
+    "let g:vim_markdown_folding_level = 6
 let g:vim_markdown_folding_disabled = 1
 au BufRead,BufNewFile *.md setlocal wrap
 
@@ -223,24 +317,10 @@ au BufRead,BufNewFile *.md setlocal wrap
 let g:go_fmt_autosave = 0
 autocmd FileType go inoremap <c-n> <c-x><c-o>
 
-" @virtualenv
-let g:virtualenv_stl_format = '(%n)'
-
-" @python-syntax
-let python_highlight_all = 1
-
-" @nerdtree
-let g:NERDTreeWinPos = "right"
-let g:NERDTreeWinSize=35
-let NERDTreeIgnore = ['\.pyc$', '__pycache__']
-map <leader>nn :NERDTreeToggle<cr>
-map <leader>nb :NERDTreeFromBookmark<Space>
-
 " @fzf.vim
 map <c-p> :Files<cr>
 map <c-b> :Buffers<cr>
 map <c-t> :BTags<cr>
-map <c-l> :BLines<cr>
 
 " @vim-mundo
 set undofile

@@ -1,7 +1,6 @@
 unlet! skip_defaults_vim
 silent! source $VIMRUNTIME/defaults.vim
 
-
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
 " ## PLUGINS #
@@ -30,14 +29,15 @@ Plug '/usr/local/opt/fzf' " installed fzf using brew
 Plug 'junegunn/fzf.vim'
 
 " code
-Plug 'w0rp/ale'
-Plug 'ervandew/supertab'
-Plug 'tpope/vim-commentary'
-Plug 'michaeljsmith/vim-indent-object' " ai, ii, aI, iI
+ Plug 'jsfaint/gen_tags.vim'
+ Plug 'w0rp/ale'
+ Plug 'ervandew/supertab'
+ Plug 'tpope/vim-commentary'
+ Plug 'michaeljsmith/vim-indent-object' " ai, ii, aI, iI
 
 " vcs
-Plug 'mhinz/vim-signify'
-Plug 'tpope/vim-fugitive'
+ Plug 'airblade/vim-gitgutter'
+ Plug 'tpope/vim-fugitive'
 
 " tools
 Plug 'tyru/open-browser.vim'
@@ -89,17 +89,21 @@ call plug#end()
 let mapleader = ' '
 let maplocalleader = ' '
 
+" theme
+" set background=dark
+colo zenburn
+
 " define command group
 augroup vimrc
     autocmd!
 augroup END
 
-" theme
-set t_Co=256
-colorscheme zenburn
-set t_ZH=[3m
-set t_ZR=[23m
-highlight Comment cterm=italic
+" turn on true color
+" if has('termguicolors')
+"   let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+"   let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+"   set termguicolors
+" endif
 
 set number
 set nomodeline
@@ -159,6 +163,7 @@ nnoremap ; :
 nnoremap <leader>; ;
 nnoremap 0 ^
 cnoremap $v e ~/.vimrc
+cnoremap $n e ~/Dropbox/Notes/
 
 " save
 inoremap <C-s>     <C-O>:update<cr>
@@ -302,7 +307,6 @@ let g:ale_lint_on_text_changed = 'never'
 let g:ale_set_signs = 0
 let g:ale_set_loclist = 0
 let g:ale_set_balloons = -2
-let g:ale_statusline_format = ['E:%d', 'W:%d', '']
 let g:ale_echo_msg_format = '[%linter%]: %s'
 nmap <silent> <leader>p <Plug>(ale_previous_wrap)
 nmap <silent> <leader>n <Plug>(ale_next_wrap)
@@ -313,25 +317,34 @@ nmap <silent> <leader>n <Plug>(ale_next_wrap)
 let g:vim_markdown_folding_disabled = 1
 au BufRead,BufNewFile *.md setlocal wrap
 
+" @vim-gen_tags
+let g:loaded_gentags#gtags = 1
+let g:gen_tags#blacklist = ['$HOME']
+
 " @vim-go
 let g:go_fmt_autosave = 0
 autocmd FileType go inoremap <c-n> <c-x><c-o>
 
 " @fzf.vim
-map <c-p> :Files<cr>
-map <c-b> :Buffers<cr>
-map <c-t> :BTags<cr>
+nnoremap <silent> <Leader><Leader> :Files<cr>
+nnoremap <silent> <Leader>C        :Colors<cr>
+nnoremap <silent> <Leader><Enter>  :Buffers<cr>
+nnoremap <silent> <Leader>l        :Lines<cr>
+nnoremap <silent> <Leader>ag       :Ag <c-r><c-w><cr>
+nnoremap <silent> <leader>ag       :Ag <c-r><c-a><cr>
+xnoremap <silent> <leader>ag       y:Ag <c-r>"<cr>
+nnoremap <silent> <Leader>`        :Marks<cr>
 
 " @vim-mundo
 set undofile
 set undodir=~/.vim/undo
-nnoremap U :MundoToggle<CR>
+nnoremap U :MundoToggle<cr>
 if has('python3')
     let g:mundo_prefer_python3 = 1
 endif
 
 " @vim-better-whitespace
-nnoremap <leader>W :StripWhitespace<CR>
+nnoremap <leader>W :StripWhitespace<cr>
 " autocmd BufEnter * EnableStripWhitespaceOnSave
 
 " @jedi-vim
@@ -359,7 +372,7 @@ let g:lightline = {
       \ 'active': {
       \   'left': [ ['mode', 'paste'],
       \             ['fugitive', 'readonly', 'filename', 'modified'] ],
-      \   'right': [ [ 'lineinfo' ], ['percent'],  ['linter_errors', 'linter_warnings', 'linter_ok'] ]
+      \   'right': [ [ 'lineinfo' ], ['percent'],  ['linter_errors', 'linter_warnings'] ]
       \ },
       \ 'tabline': {
       \   'left': [ [ 'tabs' ] ],
@@ -378,7 +391,6 @@ let g:lightline = {
       \  'component_expand': {
       \  'linter_warnings': 'lightline#ale#warnings',
       \  'linter_errors': 'lightline#ale#errors',
-      \  'linter_ok': 'lightline#ale#ok',
       \ },
       \  'component_type': {
       \     'linter_warnings': 'warning',

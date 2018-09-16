@@ -36,7 +36,7 @@ alias zshconfig="vim ~/.zshrc"
 alias zshconfiglocal="vim ~/.zshrc.local"
 alias tmuxconfig="vim ~/.tmux.conf"
 alias tmuxconfiglocal="vim ~/.tmux.conf.local"
-alias bashconfig="vim ~/.bash_profile"
+alias bashconfig="vim ~/.bashrc"
 alias jn="jupyter notebook"
 
 
@@ -45,6 +45,7 @@ alias jn="jupyter notebook"
 # ## FZF #
 #------------------------------------------------------------------------------
 
+# require fzf, fd
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
 export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'

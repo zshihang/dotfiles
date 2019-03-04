@@ -1,6 +1,8 @@
 unlet! skip_defaults_vim
 silent! source $VIMRUNTIME/defaults.vim
 
+let s:darwin = has('mac')
+
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
 " ## PLUGINS #
@@ -16,7 +18,6 @@ Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 Plug 'terryma/vim-expand-region'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'Raimondi/delimitMate'
-Plug 'ntpeters/vim-better-whitespace'
 
 " view
 Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
@@ -29,18 +30,18 @@ Plug '/usr/local/opt/fzf' " installed fzf using brew
 Plug 'junegunn/fzf.vim'
 
 " code
- Plug 'jsfaint/gen_tags.vim'
- Plug 'w0rp/ale'
- Plug 'ervandew/supertab'
- Plug 'tpope/vim-commentary'
- Plug 'michaeljsmith/vim-indent-object' " ai, ii, aI, iI
+Plug 'jsfaint/gen_tags.vim'
+Plug 'w0rp/ale'
+Plug 'ervandew/supertab'
+Plug 'tpope/vim-commentary'
+Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
+Plug 'Chiel92/vim-autoformat'
 
 " vcs
- Plug 'airblade/vim-gitgutter'
- Plug 'tpope/vim-fugitive'
+Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
 
 " tools
-Plug 'tyru/open-browser.vim'
 Plug 'zerowidth/vim-copy-as-rtf'
 " Plug 'beloglazov/vim-online-thesaurus' not working now
 
@@ -70,13 +71,12 @@ Plug 'lervag/vimtex', { 'for': 'tex' }
 Plug 'davidhalter/jedi-vim', { 'for': 'python' }
 Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
 Plug 'kh3phr3n/python-syntax'
-Plug 'mindriot101/vim-yapf', { 'for': 'python' }
 
 " java
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " golang
-Plug 'fatih/vim-go', { 'for': 'go'}
+Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
 call plug#end()
 
@@ -108,7 +108,6 @@ augroup END
 set number
 set nomodeline
 set autoindent
-set smartindent
 set lazyredraw                  " do not update the display while executing macros
 set laststatus=2                " always show statusline
 set showcmd                     " shows visual selection info
@@ -123,10 +122,10 @@ set ignorecase                  " ignore case when searching
 set smartcase
 set wildmenu
 set wildmode=full
-set tabstop=4                   " a tab is four spaces
-set shiftwidth=4                " number of spaces to use for each step of (auto)indent
-set expandtab                   " use the appropriate number of spaces to insert a tab
 set smarttab                    " insert blanks according to shiftwidth
+set shiftwidth=2                " number of spaces to use for each step of (auto)indent
+set softtabstop=2               " when using <BS>, four spaces are considered a tab
+set tabstop=2                   " a tab is four spaces
 set scrolloff=9
 set encoding=utf-8
 set virtualedit=block           " allow virtual editing only in visual block mode
@@ -136,11 +135,10 @@ set diffopt=filler,vertical
 set autoread
 set clipboard=unnamed           " global clipboard
 set foldlevelstart=99           " start editing with no folds closed
-set completeopt=menuone,preview
+set completeopt=menuone
 silent! set cryptmethod=blowfish2
 set noshowmode                  " do not show what mode because we already have statusline
 set history=500                 " allow more history remembered
-set softtabstop=4               " when using <BS>, four spaces are considered a tab
 set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
 set showmatch                   " show matching parenthesis
 set matchtime=2                 " tenths of a second to show the matching paren
@@ -153,6 +151,7 @@ set undodir=/tmp//,.
 silent! set ttymouse=xterm2
 set mouse=a
 
+autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
@@ -226,17 +225,17 @@ xnoremap > >gv
 
 " google / lucky
 function! s:goog(pat, lucky)
-    let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
-    let q = substitute(q, '[[:punct:] ]',
-                \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
-    call system(printf('open "https://www.google.com/search?%sq=%s"',
-                \ a:lucky ? 'btnI&' : '', q))
+  let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
+  let q = substitute(q, '[[:punct:] ]',
+       \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
+  call system(printf('open "https://www.google.com/search?%sq=%s"',
+                   \ a:lucky ? 'btnI&' : '', q))
 endfunction
 
 nnoremap <leader>? :call <SID>goog(expand("<cWORD>"), 0)<cr>
 nnoremap <leader>! :call <SID>goog(expand("<cWORD>"), 1)<cr>
 xnoremap <leader>? "gy:call <SID>goog(@g, 0)<cr>gv
-xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv))']')'"'
+xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv
 
 " a.vim
 function! s:a(cmd)
@@ -288,10 +287,22 @@ nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
 " ## PLUGIN SETTINGS #
 "------------------------------------------------------------------------------
 
-" @open-browser
-let g:netrw_nogx = 1
-nmap gx <Plug>(openbrowser-smart-search)
-vmap gx <Plug>(openbrowser-smart-search)
+" function! s:plug_gx()
+"   let line = getline('.')
+"   let sha  = matchstr(line, '^  \X*\zs\x\{7,9}\ze ')
+"   let name = empty(sha) ? matchstr(line, '^[-x+] \zs[^:]\+\ze:')
+"                       \ : getline(search('^- .*:$', 'bn'))[2:-2]
+"   let uri  = get(get(g:plugs, name, {}), 'uri', '')
+"   if uri !~ 'github.com'
+"     return
+"   endif
+"   let repo = matchstr(uri, '[^:/]*/'.name)
+"   let url  = empty(sha) ? 'https://github.com/'.repo
+"                       \ : printf('https://github.com/%s/commit/%s', repo, sha)
+"   call netrw#BrowseX(url, 0)
+" endfunction
+" nnoremap <buffer> <silent> gx :call <sid>plug_gx()<cr>
+
 
 " @python-syntax
 let g:python_highlight_all = 1
@@ -343,10 +354,6 @@ if has('python3')
     let g:mundo_prefer_python3 = 1
 endif
 
-" @vim-better-whitespace
-nnoremap <leader>W :StripWhitespace<cr>
-" autocmd BufEnter * EnableStripWhitespaceOnSave
-
 " @jedi-vim
 let g:jedi#completions_command = "<c-n>"
 let g:jedi#popup_on_dot = 0
@@ -361,10 +368,6 @@ let g:jedi#popup_select_first = 0
 " @vim-javacomplete2
 autocmd FileType java setlocal omnifunc=javacomplete#Complete
 autocmd FileType java inoremap <c-n> <c-x><c-o>
-
-" @vim-yapf
-nnoremap <leader>y :Yapf<cr>
-" let g:yapf_style = "google"
 
 " @lightline
 let g:lightline = {

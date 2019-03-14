@@ -78,6 +78,8 @@ Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 " golang
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
+Plug 'tpope/vim-sensible'
+
 call plug#end()
 
 
@@ -105,51 +107,39 @@ augroup END
 "   set termguicolors
 " endif
 
-set number
-set nomodeline
-set autoindent
-set lazyredraw                  " do not update the display while executing macros
-set laststatus=2                " always show statusline
-set showcmd                     " shows visual selection info
-set visualbell t_vb=            " no beeping
-set backspace=indent,eol,start
-set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
-set shortmess=aIT               " short message
-set hlsearch
-set incsearch
+set backupdir=/tmp//,.
+set clipboard=unnamed           " global clipboard
+set colorcolumn=80
+set completeopt=menuone
+set diffopt=filler,vertical
+set directory=/tmp//,.
+set foldlevelstart=99           " start editing with no folds closed
 set hidden                      " buffers become hidden when abandoned
+" set hlsearch
 set ignorecase                  " ignore case when searching
-set smartcase
-set wildmenu
-set wildmode=full
-set smarttab                    " insert blanks according to shiftwidth
+set lazyredraw                  " do not update the display while executing macros
+set mouse=a
+set nojoinspaces
+set nolist                      " do not show invisible characters
+set nomodeline
+set noshowmode                  " do not show what mode because we already have statusline
+set nostartofline
+set number
+set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
 set shiftwidth=2                " number of spaces to use for each step of (auto)indent
+set shortmess=aIT               " short message
+set showcmd                     " shows visual selection info
+set showmatch                   " show matching parenthesis
+set smartcase
 set softtabstop=2               " when using <BS>, four spaces are considered a tab
 set tabstop=2                   " a tab is four spaces
-set scrolloff=9
-set encoding=utf-8
-set virtualedit=block           " allow virtual editing only in visual block mode
-set nolist                      " do not show invisible characters
-set nojoinspaces
-set diffopt=filler,vertical
-set autoread
-set clipboard=unnamed           " global clipboard
-set foldlevelstart=99           " start editing with no folds closed
-set completeopt=menuone
-silent! set cryptmethod=blowfish2
-set noshowmode                  " do not show what mode because we already have statusline
-set history=500                 " allow more history remembered
-set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
-set showmatch                   " show matching parenthesis
-set matchtime=2                 " tenths of a second to show the matching paren
-set complete-=i                 " dont scan the current and included files
-set colorcolumn=80
-set nostartofline
-set directory=/tmp//,.
-set backupdir=/tmp//,.
+set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
 set undodir=/tmp//,.
+set virtualedit=block           " allow virtual editing only in visual block mode
+set visualbell t_vb=            " no beeping
+set wildmode=full
+silent! set cryptmethod=blowfish2
 silent! set ttymouse=xterm2
-set mouse=a
 
 autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 

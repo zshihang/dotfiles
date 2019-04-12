@@ -1,7 +1,18 @@
 unlet! skip_defaults_vim
 silent! source $VIMRUNTIME/defaults.vim
 
+
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## PREREQUISITES #
+"------------------------------------------------------------------------------
+if empty(glob('~/.vim/autoload/plug.vim'))
+	echoerr "vim-plug is required"
+	finish
+endif
+
 let s:darwin = has('mac')
+
 
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
@@ -24,8 +35,11 @@ Plug 'justinmk/vim-dirvish'
 Plug 'justinmk/vim-gtfo'
 
 " navigate
-Plug '/usr/local/opt/fzf' " installed fzf using brew
-" Plug '~/.fzf' " installed fzf using git
+if s:darwin
+	Plug '/usr/local/opt/fzf' " installed fzf using brew
+else
+	Plug '~/.fzf' " installed fzf using git
+endif
 Plug 'junegunn/fzf.vim'
 
 " code
@@ -35,14 +49,18 @@ Plug 'ervandew/supertab'
 Plug 'tpope/vim-commentary'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'Chiel92/vim-autoformat'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/vim-lsp'
 
 " vcs
-Plug 'airblade/vim-gitgutter'
+Plug 'mhinz/vim-signify'
+" Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
 " tools
-Plug 'zerowidth/vim-copy-as-rtf'
-" Plug 'beloglazov/vim-online-thesaurus' not working now
+if s:darwin
+	Plug 'zerowidth/vim-copy-as-rtf'
+endif
 
 " appearance
 Plug 'itchyny/lightline.vim'
@@ -212,89 +230,8 @@ xnoremap > >gv
 
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
-" ## HANDY SCRIPTS #
-"------------------------------------------------------------------------------
-
-" google / lucky
-function! s:goog(pat, lucky)
-  let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
-  let q = substitute(q, '[[:punct:] ]',
-       \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
-  call system(printf('open "https://www.google.com/search?%sq=%s"',
-                   \ a:lucky ? 'btnI&' : '', q))
-endfunction
-
-nnoremap <leader>? :call <SID>goog(expand("<cWORD>"), 0)<cr>
-nnoremap <leader>! :call <SID>goog(expand("<cWORD>"), 1)<cr>
-xnoremap <leader>? "gy:call <SID>goog(@g, 0)<cr>gv
-xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv
-
-" a.vim
-function! s:a(cmd)
-  let name = expand('%:r')
-  let ext = tolower(expand('%:e'))
-  let sources = ['c', 'cc', 'cpp', 'cxx']
-  let headers = ['h', 'hh', 'hpp', 'hxx']
-  for pair in [[sources, headers], [headers, sources]]
-    let [set1, set2] = pair
-    if index(set1, ext) >= 0
-      for h in set2
-        let aname = name.'.'.h
-        for a in [aname, toupper(aname)]
-          if filereadable(a)
-            execute a:cmd a
-            return
-          end
-        endfor
-      endfor
-    endif
-  endfor
-endfunction
-command! A call s:a('e')
-command! AV call s:a('botright vertical split')
-
-" theme switcher
-function! s:colors(...)
-endfunction
-function! s:rotate_colors()
-  if !exists('s:colors')
-    let s:colors = filter(map(filter(split(globpath(&rtp,
-                   \                                'colors/*.vim'),
-                   \                       "\n"),
-                   \                 'v:val !~ "^/usr/"'),
-                   \          'fnamemodify(v:val, ":t:r")'),
-                   \      '!a:0 || stridx(v:val, a:1) >= 0')
-  endif
-  let name = remove(s:colors, 0)
-  call add(s:colors, name)
-  execute 'colorscheme' name
-  redraw
-  echo name
-endfunction
-nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
-
-
-"------------------------------------------------------------------------------
-"------------------------------------------------------------------------------
 " ## PLUGIN SETTINGS #
 "------------------------------------------------------------------------------
-
-" function! s:plug_gx()
-"   let line = getline('.')
-"   let sha  = matchstr(line, '^  \X*\zs\x\{7,9}\ze ')
-"   let name = empty(sha) ? matchstr(line, '^[-x+] \zs[^:]\+\ze:')
-"                       \ : getline(search('^- .*:$', 'bn'))[2:-2]
-"   let uri  = get(get(g:plugs, name, {}), 'uri', '')
-"   if uri !~ 'github.com'
-"     return
-"   endif
-"   let repo = matchstr(uri, '[^:/]*/'.name)
-"   let url  = empty(sha) ? 'https://github.com/'.repo
-"                       \ : printf('https://github.com/%s/commit/%s', repo, sha)
-"   call netrw#BrowseX(url, 0)
-" endfunction
-" nnoremap <buffer> <silent> gx :call <sid>plug_gx()<cr>
-
 
 " @python-syntax
 let g:python_highlight_all = 1
@@ -306,13 +243,13 @@ let g:tagbar_sort = 0
 
 " @ale
 let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
-let g:ale_lint_on_text_changed = 'never'
-let g:ale_set_signs = 0
-let g:ale_set_loclist = 0
-let g:ale_set_balloons = -2
+" let g:ale_lint_on_text_changed = 'never'
+" let g:ale_set_signs = 0
+" let g:ale_set_loclist = 0
+" let g:ale_set_balloons = -2
 let g:ale_echo_msg_format = '[%linter%]: %s'
-nmap <silent> <leader>p <Plug>(ale_previous_wrap)
-nmap <silent> <leader>n <Plug>(ale_next_wrap)
+nmap <silent> <leader>k <Plug>(ale_previous_wrap)
+nmap <silent> <leader>j <Plug>(ale_next_wrap)
 
 " @vim-markdown
 "let g:vim_markdown_folding_style_pythonic = 1
@@ -395,3 +332,71 @@ let g:lightline = {
       \ 'subseparator': { 'left': ' ', 'right': ' ' }
       \ }
 
+
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## HANDY SCRIPTS #
+"------------------------------------------------------------------------------
+
+" google / lucky
+function! s:goog(pat, lucky)
+  let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
+  let q = substitute(q, '[[:punct:] ]',
+       \ '\=printf("%%%02X", char2nr(submatch(0)))', 'g')
+  call system(printf('open "https://www.google.com/search?%sq=%s"',
+                   \ a:lucky ? 'btnI&' : '', q))
+endfunction
+
+nnoremap <leader>? :call <SID>goog(expand("<cWORD>"), 0)<cr>
+nnoremap <leader>! :call <SID>goog(expand("<cWORD>"), 1)<cr>
+xnoremap <leader>? "gy:call <SID>goog(@g, 0)<cr>gv
+xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv
+
+" a.vim
+function! s:a(cmd)
+  let name = expand('%:r')
+  let ext = tolower(expand('%:e'))
+  let sources = ['c', 'cc', 'cpp', 'cxx']
+  let headers = ['h', 'hh', 'hpp', 'hxx']
+  for pair in [[sources, headers], [headers, sources]]
+    let [set1, set2] = pair
+    if index(set1, ext) >= 0
+      for h in set2
+        let aname = name.'.'.h
+        for a in [aname, toupper(aname)]
+          if filereadable(a)
+            execute a:cmd a
+            return
+          end
+        endfor
+      endfor
+    endif
+  endfor
+endfunction command! A call s:a('e') command! AV call s:a('botright vertical split')
+
+" theme switcher
+function! s:colors(...)
+endfunction
+function! s:rotate_colors()
+  if !exists('s:colors')
+    let s:colors = filter(map(filter(split(globpath(&rtp,
+                   \                                'colors/*.vim'),
+                   \                       "\n"),
+                   \                 'v:val !~ "^/usr/"'),
+                   \          'fnamemodify(v:val, ":t:r")'),
+                   \      '!a:0 || stridx(v:val, a:1) >= 0')
+  endif
+  let name = remove(s:colors, 0)
+  call add(s:colors, name)
+  execute 'colorscheme' name
+  redraw
+  echo name
+endfunction
+nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
+
+
+"------------------------------------------------------------------------------
+"------------------------------------------------------------------------------
+" ## LOCAL #
+"------------------------------------------------------------------------------
+so $HOME/.vimrc.local

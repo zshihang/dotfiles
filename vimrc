@@ -7,7 +7,6 @@ let s:darwin = has('mac')
 "------------------------------------------------------------------------------
 " ## PLUGINS #
 "------------------------------------------------------------------------------
-
 call plug#begin('~/.vim/plugged')
 
 " edit
@@ -181,6 +180,9 @@ inoremap <C-^> <C-o><C-^>
 " quickfix
 nnoremap ]q :cnext<cr>zz
 nnoremap [q :cprev<cr>zz
+nnoremap <Leader>qq :ccl<cr>
+
+" loclist
 nnoremap ]l :lnext<cr>zz
 nnoremap [l :lprev<cr>zz
 

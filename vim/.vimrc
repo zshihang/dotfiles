@@ -11,8 +11,14 @@ if empty(glob('~/.vim/autoload/plug.vim'))
 	finish
 endif
 
-let s:darwin = has('mac')
+if empty(glob('~/.vimrc.google'))
+	let s:google = 0
+else
+	let s:google = 1
+	finish
+endif
 
+let s:darwin = has('mac')
 
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
@@ -43,18 +49,18 @@ endif
 Plug 'junegunn/fzf.vim'
 
 " code
-Plug 'jsfaint/gen_tags.vim'
 Plug 'w0rp/ale'
 Plug 'ervandew/supertab'
 Plug 'tpope/vim-commentary'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'Chiel92/vim-autoformat'
-Plug 'prabirshrestha/async.vim'
-Plug 'prabirshrestha/vim-lsp'
+if s:google
+	Plug 'prabirshrestha/async.vim'
+	Plug 'prabirshrestha/vim-lsp'
+endif
 
 " vcs
 Plug 'mhinz/vim-signify'
-" Plug 'airblade/vim-gitgutter'
 Plug 'tpope/vim-fugitive'
 
 " tools
@@ -171,6 +177,16 @@ nnoremap 0 ^
 cnoremap $v e ~/.vimrc
 cnoremap $n e ~/Dropbox/Notes/
 
+" escape
+inoremap jk <Esc>
+xnoremap jk <Esc>
+cnoremap jk <C-c>
+
+" tag
+nnoremap <C-]> g<C-]>
+nnoremap g[ :pop<cr>
+nnoremap <C-p> <C-i>
+
 " save
 inoremap <C-s>     <C-O>:update<cr>
 nnoremap <C-s>     :update<cr>
@@ -198,11 +214,10 @@ inoremap <C-^> <C-o><C-^>
 " quickfix
 nnoremap ]q :cnext<cr>zz
 nnoremap [q :cprev<cr>zz
-nnoremap <Leader>qq :ccl<cr>
-
 " loclist
 nnoremap ]l :lnext<cr>zz
 nnoremap [l :lprev<cr>zz
+nnoremap <leader>c :cclose<bar>lclose<cr>
 
 " buffer
 nnoremap ]b :bnext<cr>
@@ -257,10 +272,6 @@ nmap <silent> <leader>j <Plug>(ale_next_wrap)
 let g:vim_markdown_folding_disabled = 1
 au BufRead,BufNewFile *.md setlocal wrap
 
-" @vim-gen_tags
-let g:loaded_gentags#gtags = 1
-let g:gen_tags#blacklist = ['$HOME']
-
 " @vim-go
 let g:go_fmt_autosave = 0
 autocmd FileType go inoremap <c-n> <c-x><c-o>
@@ -289,14 +300,6 @@ let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 2
 let g:jedi#usages_command = ""
 let g:jedi#popup_select_first = 0
-
-" @gutentags
- let g:gutentags_project_root = ['build.xml']
- let g:gutentags_cache_dir = "~/.tagsfiles/"
-
-" @vim-javacomplete2
-autocmd FileType java setlocal omnifunc=javacomplete#Complete
-autocmd FileType java inoremap <c-n> <c-x><c-o>
 
 " @lightline
 let g:lightline = {
@@ -400,3 +403,6 @@ nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
 " ## LOCAL #
 "------------------------------------------------------------------------------
 so $HOME/.vimrc.local
+if s:google
+	so $HOME/.vimrc.google
+endif

@@ -15,7 +15,6 @@ if empty(glob('~/.vimrc.google'))
 	let s:google = 0
 else
 	let s:google = 1
-	finish
 endif
 
 let s:darwin = has('mac')
@@ -53,10 +52,13 @@ Plug 'w0rp/ale'
 Plug 'ervandew/supertab'
 Plug 'tpope/vim-commentary'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
-Plug 'Chiel92/vim-autoformat'
 if s:google
-	Plug 'prabirshrestha/async.vim'
-	Plug 'prabirshrestha/vim-lsp'
+  Plug 'prabirshrestha/async.vim'
+  Plug 'prabirshrestha/vim-lsp'
+  " Plug 'prabirshrestha/asyncomplete.vim'
+  " Plug 'prabirshrestha/asyncomplete-lsp.vim'
+else
+  Plug 'Chiel92/vim-autoformat'
 endif
 
 " vcs
@@ -99,6 +101,7 @@ Plug 'kh3phr3n/python-syntax'
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " golang
+
 Plug 'fatih/vim-go', { 'for': 'go', 'do': ':GoUpdateBinaries' }
 
 Plug 'tpope/vim-sensible'
@@ -164,7 +167,9 @@ set wildmode=full
 silent! set cryptmethod=blowfish2
 silent! set ttymouse=xterm2
 
-autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+if !s:google
+  autocmd FileType python setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+endif
 
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
@@ -295,6 +300,7 @@ if has('python3')
 endif
 
 " @jedi-vim
+let g:jedi#goto_command = "<C-]>"
 let g:jedi#completions_command = "<c-n>"
 let g:jedi#popup_on_dot = 0
 let g:jedi#show_call_signatures = 2

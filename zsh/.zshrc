@@ -5,11 +5,12 @@
 
 source ~/.zplug/init.zsh || { git clone https://github.com/zplug/zplug ~/.zplug && source ~/.zplug/init.zsh }
 
-zplug 'clvv/fasd', as:command
+zplug 'clvv/fasd', as:command, use:fasd
 zplug "lib/history", from:oh-my-zsh
 zplug "lib/key-bindings", from:oh-my-zsh
 zplug "lib/directories", from:oh-my-zsh
 zplug "plugins/git", from:oh-my-zsh
+zplug "plugins/mercurial", from:oh-my-zsh
 zplug "plugins/extract", from:oh-my-zsh
 zplug "djui/alias-tips"
 zplug "supercrabtree/k"
@@ -42,6 +43,13 @@ alias jn="jupyter notebook"
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
+# ## BINDINGS #
+#------------------------------------------------------------------------------
+bindkey "^K" history-beginning-search-backward
+bindkey "^J" history-beginning-search-forward
+
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # ## FZF #
 #------------------------------------------------------------------------------
 
@@ -55,10 +63,13 @@ if [ -x ~/.vim/plugged/fzf.vim/bin/preview.rb ]; then
 fi
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview' --bind 'ctrl-y:execute-silent(echo -n {2..} | pbcopy)+abort' --header 'Press CTRL-Y to copy command into clipboard' --border"
 
+unalias z
 z() {
+    [ $# -gt 0 ] && _z "$*" && return
+    cd "$(_z -l 2>&1 | fzf --height 40% --nth 2.. --reverse --inline-info +s --tac --query "${*##-* }" | sed 's/^[0-9,.]* *//')"
     # [ $# -gt 0 ] && fasd_cd -d "$*" && return
-    local dir
-    dir="$(fasd -Rdl "$1" | fzf -1 -0 --no-sort +m)" && cd "${dir}" || return 1
+    # local dir
+    # dir="$(fasd -Rdl "$1" | fzf -1 -0 --no-sort +m)" && cd "${dir}" || return 1
 }
 
 # v

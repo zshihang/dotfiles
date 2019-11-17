@@ -37,7 +37,7 @@ Plug 'AndrewRadev/switch.vim' " :Switch
 Plug 'Raimondi/delimitMate'
 
 " view
-Plug 'majutsushi/tagbar', { 'on': 'TagbarToggle' }
+Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
 Plug 'justinmk/vim-dirvish' " -
 Plug 'justinmk/vim-gtfo' " gof, got
 Plug 'junegunn/vim-peekaboo'
@@ -94,6 +94,9 @@ Plug 'kh3phr3n/python-syntax'
 " java
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
+" go
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+
 Plug 'tpope/vim-sensible'
 
 call plug#end()
@@ -126,6 +129,7 @@ set foldlevelstart=99           " start editing with no folds closed
 set hidden                      " buffers become hidden when abandoned
 set ignorecase                  " ignore case when searching
 set lazyredraw                  " do not update the display while executing macros
+set laststatus=2
 set modeline
 set modelines=1
 set nojoinspaces
@@ -162,6 +166,7 @@ set mouse=a
 
 
 autocmd FileType go setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType cpp setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
 
 " }}}
 "------------------------------------------------------------------------------
@@ -271,15 +276,21 @@ if has('timers')
   noremap <expr> <plug>(slash-after) slash#blink(2, 50)
 endif
 
-" @tagbar
-inoremap <F9> <esc>:TagbarToggle<cr>
-nnoremap <F9> :TagbarToggle<cr>
-let g:tagbar_sort = 0
+" @vista
+inoremap <F9> <esc>:Vista!!<cr>
+nnoremap <F9> :Vista!!<cr>
+nnoremap <silent> <Leader>T        :Vista finder<cr>
+let g:vista_executive_for = {
+	\ 'go': 'coc',
+	\ 'markdown': 'toc',
+	\ }
+let g:vista#renderer#enable_icon = 0
 
 " @ale
 let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
 let g:ale_set_loclist = 0
 let g:ale_echo_msg_format = '[%linter%]: %s'
+let g:ale_linters = {'go': ['gofmt']}
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \}
@@ -296,6 +307,10 @@ nmap <silent> <leader>j <Plug>(ale_next_wrap)
 let g:vim_markdown_folding_disabled = 1
 au BufRead,BufNewFile *.md setlocal wrap
 
+" @vim-go
+let g:go_def_mapping_enabled = 0
+let g:go_code_completion_enabled = 0
+
 " @fzf.vim
 command! -nargs=? -complete=dir AF
   \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
@@ -303,7 +318,7 @@ command! -nargs=? -complete=dir AF
   \ })))
 
 nnoremap <silent> <Leader><Leader> :Files<cr>
-nnoremap <silent> <Leader>C        :Colors<cr>
+nnoremap <silent> <Leader>C        :Commands<cr>
 nnoremap <silent> <Leader><Enter>  :Buffers<cr>
 nnoremap <silent> <Leader>L        :Lines<cr>
 nnoremap <silent> <Leader>ag       :Ag <c-r><c-w><cr>

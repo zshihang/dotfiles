@@ -95,7 +95,7 @@ Plug 'kh3phr3n/python-syntax'
 Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
 
 " go
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
+Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 
 Plug 'tpope/vim-sensible'
 
@@ -310,6 +310,8 @@ au BufRead,BufNewFile *.md setlocal wrap
 " @vim-go
 let g:go_def_mapping_enabled = 0
 let g:go_code_completion_enabled = 0
+let g:go_fmt_fail_silently = 1
+let g:go_fmt_autosave = 0
 
 " @fzf.vim
 command! -nargs=? -complete=dir AF
@@ -403,7 +405,23 @@ if has_key(g:plugs, 'coc.nvim')
       \ 'coc-html',
       \ 'coc-css' ]
   if !google3
-  	call coc#add_extension('coc-python')
+    call coc#add_extension('coc-python')
+    call coc#config('languageserver', {
+         \  "clangd": {
+         \      "command": "clangd",
+         \      "args": ["--background-index"],
+         \      "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
+         \      "filetypes": ["c", "cpp", "objc", "objcpp"]
+         \  },
+         \  "golang": {
+         \      "command": "gopls",
+         \      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
+         \      "filetypes": ["go"],
+         \      "initializationOptions": {
+         \          "usePlaceholders": "true",
+         \      }
+         \  }
+         \})
   endif
 
 endif

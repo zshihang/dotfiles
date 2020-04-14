@@ -188,6 +188,9 @@ cnoremap $n e ~/Dropbox/Notes/
 inoremap jk <Esc>
 xnoremap jk <Esc>
 cnoremap jk <C-c>
+inoremap kj <Esc>
+xnoremap kj <Esc>
+cnoremap kj <C-c>
 
 " tag
 nnoremap <C-]> g<C-]>
@@ -291,7 +294,7 @@ let g:vista#renderer#enable_icon = 0
 let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
 let g:ale_set_loclist = 0
 let g:ale_echo_msg_format = '[%linter%]: %s'
-let g:ale_linters = {'go': ['gofmt']}
+let g:ale_linters = {'go': ['gofmt'], 'c': []}
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \}
@@ -407,13 +410,14 @@ if has_key(g:plugs, 'coc.nvim')
       \ 'coc-css' ]
   if !google3
     call coc#add_extension('coc-python')
+		call coc#config('python', {
+		     \ 'linting': {
+				 \   'enabled': 0,
+		     \ },
+		     \ 'venvFolders': ['.venv'],
+				 \})
+
     call coc#config('languageserver', {
-         \  "clangd": {
-         \      "command": "clangd",
-         \      "args": ["--background-index"],
-         \      "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
-         \      "filetypes": ["c", "cpp", "objc", "objcpp"]
-         \  },
          \  "golang": {
          \      "command": "gopls",
          \      "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
@@ -421,7 +425,12 @@ if has_key(g:plugs, 'coc.nvim')
          \      "initializationOptions": {
          \          "usePlaceholders": "true",
          \      }
-         \  }
+         \  },
+         \  "ocaml-lsp": {
+         \      "command": "opam",
+		     \      "args": ["config", "exec", "--", "ocamllsp"],
+         \      "filetypes": ["ocaml", "reason"],
+         \  },
          \})
   endif
 
@@ -513,7 +522,7 @@ function! s:helptab()
 endfunction
 autocmd vimrc BufEnter *.txt call s:helptab()
 
-" hignlight group
+" highlight group
 function! s:hl()
   echo join(map(synstack(line('.'), col('.')), 'synIDattr(v:val, "name")'), '/')
 endfunction
@@ -566,6 +575,3 @@ so $HOME/.vimrc.local
 if google3
 	so $HOME/.vimrc.google
 endif
-
-
-" }}}

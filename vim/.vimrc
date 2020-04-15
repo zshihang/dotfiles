@@ -8,6 +8,7 @@ silent! source $VIMRUNTIME/defaults.vim
 "------------------------------------------------------------------------------
 " ## PREREQUISITES # {{{
 "------------------------------------------------------------------------------
+
 if empty(glob('~/.vim/autoload/plug.vim'))
 	echoerr "vim-plug is required"
 	finish
@@ -22,19 +23,23 @@ let s:darwin = has('mac')
 "------------------------------------------------------------------------------
 " ## PLUGINS # {{{
 "------------------------------------------------------------------------------
+
 call plug#begin('~/.vim/plugged')
 
 " edit
-Plug 'junegunn/vim-easy-align'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-repeat' " . to repeat last command
+Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/vim-after-object'
+Plug 'junegunn/vim-journal'
 Plug 'tpope/vim-endwise'
+Plug 'brooth/far.vim' " find and replace
 Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
 Plug 'terryma/vim-expand-region'
-Plug 'AndrewRadev/splitjoin.vim' " gJ, gS
-Plug 'AndrewRadev/switch.vim' " :Switch
+Plug 'AndrewRadev/splitjoin.vim'
+Plug 'AndrewRadev/switch.vim' " -
 Plug 'Raimondi/delimitMate'
+Plug 'vim-scripts/ReplaceWithRegister'
 
 " view
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
@@ -43,6 +48,7 @@ Plug 'justinmk/vim-gtfo' " gof, got
 Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/vim-journal'
 Plug 'dhruvasagar/vim-zoom' " <c-w>m
+Plug 'Yggdroot/indentLine', { 'on': 'IndentLinesEnable' }
 
 " navigate
 if s:darwin
@@ -188,6 +194,9 @@ cnoremap $n e ~/Dropbox/Notes/
 inoremap jk <Esc>
 xnoremap jk <Esc>
 cnoremap jk <C-c>
+inoremap kj <Esc>
+xnoremap kj <Esc>
+cnoremap kj <C-c>
 
 " tag
 nnoremap <C-]> g<C-]>
@@ -205,9 +214,9 @@ nnoremap <leader>o o<esc>
 nnoremap <leader>O O<esc>
 
 " quit
-inoremap <C-Q>     <esc>:q<cr>
-nnoremap <C-Q>     :q<cr>
-vnoremap <C-Q>     <esc>
+inoremap <C-q>     <esc>:q<cr>
+nnoremap <C-q>     :q<cr>
+vnoremap <C-q>     <esc>
 nnoremap <Leader>q :q<cr>
 nnoremap <Leader>Q :qa!<cr>
 
@@ -236,6 +245,13 @@ nnoremap ]t :tabn<cr>
 nnoremap [t :tabp<cr>
 nnoremap <tab>   <C-w>w
 nnoremap <S-tab> <C-w>W
+
+" markdown headings
+nnoremap <leader>1 m`yypVr=``
+nnoremap <leader>2 m`yypVr-``
+nnoremap <leader>3 m`^i### <esc>``4l
+nnoremap <leader>4 m`^i#### <esc>``5l
+nnoremap <leader>5 m`^i##### <esc>``6l
 
 " for scratch
 map <leader>e :e ~/workplace/tmp/buffer.md<cr>
@@ -268,6 +284,25 @@ nnoremap Q @q
 "------------------------------------------------------------------------------
 " ## PLUGIN SETTINGS # {{{
 "------------------------------------------------------------------------------
+
+" splitjoin.vim
+let g:splitjoin_split_mapping = ''
+let g:splitjoin_join_mapping = ''
+nnoremap sj :SplitjoinSplit<cr>
+nnoremap sk :SplitjoinJoin<cr>
+
+" @switch.vim
+let g:switch_mapping = "-"
+
+" @far.vim
+nnoremap <silent> <leader>R  :Farr<cr>
+vnoremap <silent> <leader>r  :Farr<cr>
+
+" @vim-easy-align
+xmap ga <Plug>(EasyAlign)
+nmap ga <Plug>(EasyAlign)
+nmap gaa ga_
+xmap <Leader>ga <Plug>(LiveEasyAlign)
 
 " @python-syntax
 let g:python_highlight_all = 1
@@ -584,6 +619,33 @@ if s:darwin
   endfunction
   command! -bang ConnectChrome call s:connect_chrome(<bang>0)
 endif
+
+" rotate color
+function! s:colors(...)
+  return filter(map(filter(split(globpath(&rtp, 'colors/*.vim'), "\n"),
+        \                  'v:val !~ "^/usr/"'),
+        \           'fnamemodify(v:val, ":t:r")'),
+        \       '!a:0 || stridx(v:val, a:1) >= 0')
+endfunction
+function! s:rotate_colors()
+  if !exists('s:colors')
+    let s:colors = s:colors()
+  endif
+  let name = remove(s:colors, 0)
+  call add(s:colors, name)
+  execute 'colorscheme' name
+  redraw
+  echo name
+endfunction
+nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
+
+" prepend line number
+command! -range=% -nargs=1 NL
+  \ <line1>,<line2>!nl -w <args> -s '. ' | perl -pe 's/^.{<args>}..$//'
+
+" count appearances
+command! -nargs=1 Count execute printf('%%s/%s//gn', escape(<q-args>, '/')) | normal! ``
+
 
 " }}}
 "------------------------------------------------------------------------------

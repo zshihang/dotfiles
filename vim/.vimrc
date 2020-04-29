@@ -43,7 +43,6 @@ Plug 'vim-scripts/ReplaceWithRegister'
 
 " view
 Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
-Plug 'justinmk/vim-dirvish' " -
 Plug 'justinmk/vim-gtfo' " gof, got
 Plug 'junegunn/vim-peekaboo'
 Plug 'junegunn/vim-journal'
@@ -65,6 +64,7 @@ Plug 'ervandew/supertab'
 Plug 'tpope/vim-commentary'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install() }}
+Plug 'sheerun/vim-polyglot'
 
 " vcs
 Plug 'mhinz/vim-signify'
@@ -83,26 +83,12 @@ Plug 'AlessandroYorba/Despacio'
 Plug 'romainl/Apprentice'
 Plug 'junegunn/seoul256.vim'
 
-" c/c++
-Plug 'bfrg/vim-cpp-modern', { 'for': ['c', 'cpp'] }
-Plug 'lyuts/vim-rtags', { 'for': ['c', 'cpp'] }
-
 " markdown
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
 Plug 'wookayin/vim-typora', { 'for': 'markdown'}
 
 " latex
 Plug 'lervag/vimtex', { 'for': 'tex' }
-
-" python
-Plug 'Vimjas/vim-python-pep8-indent', { 'for': 'python' }
-Plug 'kh3phr3n/python-syntax'
-
-" java
-Plug 'artur-shaik/vim-javacomplete2', { 'for': 'java' }
-
-" go
-Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries', 'for': 'go' }
 
 Plug 'tpope/vim-sensible'
 
@@ -127,6 +113,7 @@ augroup vimrc
 augroup END
 
 set clipboard=unnamed           " global clipboard
+set cmdheight=2
 set colorcolumn=80
 set completeopt=menuone
 set cursorline
@@ -146,11 +133,12 @@ set nostartofline
 set number
 set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
 set shiftwidth=2                " number of spaces to use for each step of (auto)indent
+set expandtab
 set shortmess=aIT               " short message
 set showcmd                     " shows visual selection info
 set showmatch                   " show matching parenthesis
 set smartcase
-set softtabstop=2               " when using <BS>, four spaces are considered a tab
+set softtabstop=2               " when using <BS>, two spaces are considered a tab
 set tabstop=2                   " a tab is four spaces
 set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
 set virtualedit=block           " allow virtual editing only in visual block mode
@@ -172,8 +160,8 @@ set mouse=a
 "------------------------------------------------------------------------------
 
 
-autocmd FileType go setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
-autocmd FileType cpp setlocal expandtab shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType go setlocal shiftwidth=4 tabstop=4 softtabstop=4
+autocmd FileType cpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
 
 " }}}
 "------------------------------------------------------------------------------
@@ -304,9 +292,6 @@ nmap ga <Plug>(EasyAlign)
 nmap gaa ga_
 xmap <Leader>ga <Plug>(LiveEasyAlign)
 
-" @python-syntax
-let g:python_highlight_all = 1
-
 " @vim-slash
 if has('timers')
   noremap <expr> <plug>(slash-after) slash#blink(2, 50)
@@ -315,9 +300,10 @@ endif
 " @vista
 inoremap <F9> <esc>:Vista!!<cr>
 nnoremap <F9> :Vista!!<cr>
-nnoremap <silent> <Leader>T        :Vista finder<cr>
+nnoremap <silent> <Leader>T :Vista finder fzf:coc<cr>
+let g:vista_keep_fzf_colors = 1
+let g:vista_default_executive = 'coc'
 let g:vista_executive_for = {
-	\ 'go': 'coc',
 	\ 'markdown': 'toc',
 	\ }
 let g:vista#renderer#enable_icon = 0
@@ -326,10 +312,12 @@ let g:vista#renderer#enable_icon = 0
 let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
 let g:ale_set_loclist = 0
 let g:ale_echo_msg_format = '[%linter%]: %s'
-let g:ale_linters = {'go': ['gofmt']}
+let g:ale_linters_explicit = 1
+let g:ale_linters = {'go': ['gofmt'], }
 let g:ale_fixers = {
-\   '*': ['remove_trailing_lines', 'trim_whitespace'],
-\}
+  \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+  \ 'haskell': ['brittany'],
+  \}
 if !google3
 	let g:ale_fixers.go = ['gofmt', 'goimports']
 endif
@@ -342,12 +330,6 @@ nmap <silent> <leader>j <Plug>(ale_next_wrap)
 "let g:vim_markdown_folding_level = 6
 let g:vim_markdown_folding_disabled = 1
 au BufRead,BufNewFile *.md setlocal wrap
-
-" @vim-go
-let g:go_def_mapping_enabled = 0
-let g:go_code_completion_enabled = 0
-let g:go_fmt_fail_silently = 1
-let g:go_fmt_autosave = 0
 
 " @fzf.vim
 command! -nargs=? -complete=dir AF
@@ -435,59 +417,49 @@ if has_key(g:plugs, 'coc.nvim')
   augroup END
 
 
-  let g:coc_global_extensions = [
-      \ 'coc-tsserver',
-      \ 'coc-json',
-      \ 'coc-html',
-      \ 'coc-css' ]
-  if !google3
-		call coc#config('python', {
-		      \ 'linting': {
-				  \   'enabled': 0,
-		      \ },
-		      \ 'venvFolders': ['.venv'],
-				  \})
-		call coc#config('languageserver', {
-					\ "clangd": {
-					\   "command": "clangd",
-					\   "args": ["--background-index"],
-					\   "rootPatterns": ["compile_flags.txt", "compile_commands.json", ".vim/", ".git/", ".hg/"],
-					\   "filetypes": ["c", "cpp", "objc", "objcpp"]
-					\ },
-					\ "gopls": {
-					\   "command": "gopls",
-					\	  "rootPatterns": ["go.mod", ".vim/", ".git/", ".hg/"],
-					\	  "filetypes": ["go"],
-					\   "initializationOptions": {
-					\     "usePlaceholders": "true",
-					\   }
-					\ },
-          \ "ocaml-lsp": {
-          \   "command": "opam",
-		      \     "args": ["config", "exec", "--", "ocamllsp"],
-          \     "filetypes": ["ocaml", "reason"],
-          \ },
-					\	"haskell": {
-					\   "command": "hie-wrapper",
-					\	    "args": ["--lsp"],
-					\	  "rootPatterns": [
-					\	 	  "stack.yaml",
-					\	    "cabal.config",
-					\			"package.yaml",
-					\	  ],
-					\	 	"filetypes": [
-					\	    "hs",
-					\	 		"lhs",
-					\	 		"haskell",
-					\	 	],
-					\	 	"initializationOptions": {
-					\	 		"languageServerHaskell": {
-					\	 		  "hlintOn": "true",
-					\	 		}
-					\	 	},
-					\	},
-					\})
-  endif
+	call coc#add_extension(
+    \ 'coc-css',
+    \ 'coc-html',
+    \ 'coc-json',
+	  \ 'coc-solargraph',
+    \ 'coc-tsserver',
+		\ 'coc-clangd',
+		\ 'coc-go',
+		\ 'coc-java',
+		\ 'coc-python',
+		\)
+	call coc#config('languageserver', {
+		\ "ocaml-lsp": {
+		\   "command": "opam",
+		\     "args": ["config", "exec", "--", "ocamllsp"],
+		\     "filetypes": ["ocaml", "reason"],
+		\ },
+		\	"haskell": {
+		\   "command": "hie-wrapper",
+		\	    "args": ["--lsp"],
+		\	  "rootPatterns": [
+		\	 	  "stack.yaml",
+		\	    "cabal.config",
+		\			"package.yaml",
+		\	  ],
+		\	 	"filetypes": [
+		\	    "hs",
+		\	 		"lhs",
+		\	 		"haskell",
+		\	 	],
+		\	 	"initializationOptions": {
+		\	 		"languageServerHaskell": {
+		\	 		  "hlintOn": "true",
+		\	 		}
+		\	 	},
+		\	},
+		\})
+	call coc#config('python', {
+    \ 'linting': {
+		\   'enabled': 0,
+		\ },
+		\ 'venvFolders': ['.venv'],
+		\})
 endif
 
 " @lightline

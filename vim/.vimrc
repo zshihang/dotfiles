@@ -10,8 +10,8 @@ silent! source $VIMRUNTIME/defaults.vim
 "------------------------------------------------------------------------------
 
 if empty(glob('~/.vim/autoload/plug.vim'))
-	echoerr "vim-plug is required"
-	finish
+        echoerr "vim-plug is required"
+        finish
 endif
 
 let google3 = $PWD =~ '^/google'
@@ -105,7 +105,7 @@ let mapleader = ' '
 let maplocalleader = ' '
 
 " theme
-colo zenburn
+colo seoul256
 
 " define command group
 augroup vimrc
@@ -284,7 +284,9 @@ let g:switch_mapping = "-"
 
 " @far.vim
 nnoremap <silent> <leader>R  :Farr<cr>
-vnoremap <silent> <leader>r  :Farr<cr>
+vnoremap <silent> <leader>R  :Farr<cr>
+let g:far#enable_undo=1
+let g:far#source='rg'
 
 " @vim-easy-align
 xmap ga <Plug>(EasyAlign)
@@ -304,8 +306,8 @@ nnoremap <silent> <Leader>T :Vista finder fzf:coc<cr>
 let g:vista_keep_fzf_colors = 1
 let g:vista_default_executive = 'coc'
 let g:vista_executive_for = {
-	\ 'markdown': 'toc',
-	\ }
+        \ 'markdown': 'toc',
+        \ }
 let g:vista#renderer#enable_icon = 0
 
 " @ale
@@ -319,7 +321,7 @@ let g:ale_fixers = {
   \ 'haskell': ['brittany'],
   \}
 if !google3
-	let g:ale_fixers.go = ['gofmt', 'goimports']
+        let g:ale_fixers.go = ['gofmt', 'goimports']
 endif
 let g:ale_fix_on_save = 1
 nmap <silent> <leader>k <Plug>(ale_previous_wrap)
@@ -400,101 +402,101 @@ if has_key(g:plugs, 'coc.nvim')
   nnoremap <silent> K :call <SID>show_documentation()<CR>
 
   augroup coc-config
-	  autocmd!
-	  autocmd VimEnter * nmap <silent> [g <Plug>(coc-diagnostic-prev)
-	  autocmd VimEnter * nmap <silent> ]g <Plug>(coc-diagnostic-next)
+    autocmd!
+    autocmd VimEnter * nmap <silent> [g <Plug>(coc-diagnostic-prev)
+    autocmd VimEnter * nmap <silent> ]g <Plug>(coc-diagnostic-next)
 
-	  " conflic with vim-slash
-	  autocmd VimEnter * nmap <silent> gd <Plug>(coc-definition)
-	  autocmd VimEnter * nmap <silent> gy <Plug>(coc-type-definition)
-	  autocmd VimEnter * nmap <silent> gi <Plug>(coc-implementation)
-	  autocmd VimEnter * nmap <silent> gr <Plug>(coc-references)
+    " conflic with vim-slash
+    autocmd VimEnter * nmap <silent> gd <Plug>(coc-definition)
+    autocmd VimEnter * nmap <silent> gy <Plug>(coc-type-definition)
+    autocmd VimEnter * nmap <silent> gi <Plug>(coc-implementation)
+    autocmd VimEnter * nmap <silent> gr <Plug>(coc-references)
 
-	  autocmd VimEnter * nmap <leader>rn <Plug>(coc-rename)
+    autocmd VimEnter * nmap <leader>rn <Plug>(coc-rename)
 
-	  autocmd VimEnter * xmap <leader>f  <Plug>(coc-format-selected)
-	  autocmd VimEnter * nmap <leader>f  <Plug>(coc-format-selected)
+    autocmd VimEnter * xmap <leader>f  <Plug>(coc-format-selected)
+    autocmd VimEnter * nmap <leader>f  <Plug>(coc-format-selected)
   augroup END
 
 
-	call coc#add_extension(
+  call coc#add_extension(
     \ 'coc-css',
     \ 'coc-html',
     \ 'coc-json',
-	  \ 'coc-solargraph',
+    \ 'coc-solargraph',
     \ 'coc-tsserver',
-		\ 'coc-clangd',
-		\ 'coc-go',
-		\ 'coc-java',
-		\ 'coc-python',
-		\)
-	call coc#config('languageserver', {
-		\ "ocaml-lsp": {
-		\   "command": "opam",
-		\     "args": ["config", "exec", "--", "ocamllsp"],
-		\     "filetypes": ["ocaml", "reason"],
-		\ },
-		\	"haskell": {
-		\   "command": "hie-wrapper",
-		\	    "args": ["--lsp"],
-		\	  "rootPatterns": [
-		\	 	  "stack.yaml",
-		\	    "cabal.config",
-		\			"package.yaml",
-		\	  ],
-		\	 	"filetypes": [
-		\	    "hs",
-		\	 		"lhs",
-		\	 		"haskell",
-		\	 	],
-		\	 	"initializationOptions": {
-		\	 		"languageServerHaskell": {
-		\	 		  "hlintOn": "true",
-		\	 		}
-		\	 	},
-		\	},
-		\})
-	call coc#config('python', {
+    \ 'coc-clangd',
+    \ 'coc-go',
+    \ 'coc-java',
+    \ 'coc-python',
+    \)
+  call coc#config('languageserver', {
+    \ "ocaml-lsp": {
+    \   "command": "opam",
+    \     "args": ["config", "exec", "--", "ocamllsp"],
+    \     "filetypes": ["ocaml", "reason"],
+    \ },
+    \ "haskell": {
+    \   "command": "hie-wrapper",
+    \     "args": ["--lsp"],
+    \       "rootPatterns": [
+    \         "stack.yaml",
+    \         "cabal.config",
+    \         "package.yaml",
+    \       ],
+    \       "filetypes": [
+    \         "hs",
+    \         "lhs",
+    \         "haskell",
+    \       ],
+    \       "initializationOptions": {
+    \         "languageServerHaskell": {
+    \           "hlintOn": "true",
+    \         }
+    \       },
+    \ },
+    \})
+  call coc#config('python', {
     \ 'linting': {
-		\   'enabled': 0,
-		\ },
-		\ 'venvFolders': ['.venv'],
-		\})
+    \   'enabled': 0,
+    \ },
+    \ 'venvFolders': ['.venv'],
+    \})
 endif
 
 " @lightline
 let g:lightline = {
-      \ 'colorscheme': 'wombat',
-      \ 'active': {
-      \   'left': [ ['mode', 'paste'],
-      \             ['fugitive', 'readonly', 'filename', 'modified'] ],
-      \   'right': [ [ 'lineinfo' ], ['percent'],  ['linter_errors', 'linter_warnings'] ]
-      \ },
-      \ 'tabline': {
-      \   'left': [ [ 'tabs' ] ],
-      \   'right': [ [ 'close' ] ]
-      \ },
-      \ 'component': {
-      \   'readonly': '%{&filetype=="help"?"":&readonly?"x":""}',
-      \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
-      \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
-      \ },
-      \ 'component_visible_condition': {
-      \   'readonly': '(&filetype!="help"&& &readonly)',
-      \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
-      \   'fugitive': '(exists("g:loaded_fugitive") ? fugitive#statusline() : "")',
-      \ },
-      \  'component_expand': {
-      \  'linter_warnings': 'lightline#ale#warnings',
-      \  'linter_errors': 'lightline#ale#errors',
-      \ },
-      \  'component_type': {
-      \     'linter_warnings': 'warning',
-      \     'linter_errors': 'error',
-      \ },
-      \ 'separator': { 'left': ' ', 'right': ' ' },
-      \ 'subseparator': { 'left': ' ', 'right': ' ' }
-      \ }
+  \ 'colorscheme': 'wombat',
+  \ 'active': {
+  \   'left': [ ['mode', 'paste'],
+  \             ['fugitive', 'readonly', 'filename', 'modified'] ],
+  \   'right': [ [ 'lineinfo' ], ['percent'],  ['linter_errors', 'linter_warnings'] ]
+  \ },
+  \ 'tabline': {
+  \   'left': [ [ 'tabs' ] ],
+  \   'right': [ [ 'close' ] ]
+  \ },
+  \ 'component': {
+  \   'readonly': '%{&filetype=="help"?"":&readonly?"x":""}',
+  \   'modified': '%{&filetype=="help"?"":&modified?"+":&modifiable?"":"-"}',
+  \   'fugitive': '%{exists("*fugitive#head")?fugitive#head():""}',
+  \ },
+  \ 'component_visible_condition': {
+  \   'readonly': '(&filetype!="help"&& &readonly)',
+  \   'modified': '(&filetype!="help"&&(&modified||!&modifiable))',
+  \   'fugitive': '(exists("g:loaded_fugitive") ? fugitive#statusline() : "")',
+  \ },
+  \  'component_expand': {
+  \  'linter_warnings': 'lightline#ale#warnings',
+  \  'linter_errors': 'lightline#ale#errors',
+  \ },
+  \  'component_type': {
+  \     'linter_warnings': 'warning',
+  \     'linter_errors': 'error',
+  \ },
+  \ 'separator': { 'left': ' ', 'right': ' ' },
+  \ 'subseparator': { 'left': ' ', 'right': ' ' }
+  \}
 
 
 " }}}
@@ -626,7 +628,7 @@ command! -nargs=1 Count execute printf('%%s/%s//gn', escape(<q-args>, '/')) | no
 "------------------------------------------------------------------------------
 so $HOME/.vimrc.local
 if google3
-	so $HOME/.vimrc.google
+        so $HOME/.vimrc.google
 endif
 
 

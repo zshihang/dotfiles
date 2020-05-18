@@ -163,6 +163,11 @@ set mouse=a
 autocmd FileType go setlocal shiftwidth=4 tabstop=4 softtabstop=4
 autocmd FileType cpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
 
+" ocaml merlin
+let g:opamshare = substitute(system('opam config var share'),'\n$','','''')
+     execute "set rtp+=" . g:opamshare . "/merlin/vim"
+:execute "helptags " . g:opamshare . "/merlin/vim/doc"
+
 " }}}
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
@@ -189,7 +194,10 @@ cnoremap kj <C-c>
 " tag
 nnoremap <C-]> g<C-]>
 nnoremap g[ :pop<cr>
-nnoremap <C-p> <C-i>
+
+" jumplist
+nnoremap jo <C-o>
+nnoremap ji <C-i>
 
 " save
 inoremap <C-s>     <C-O>:update<cr>
@@ -319,6 +327,7 @@ let g:ale_linters = {'go': ['gofmt'], }
 let g:ale_fixers = {
   \ '*': ['remove_trailing_lines', 'trim_whitespace'],
   \ 'haskell': ['brittany'],
+  \ 'ocaml': ['ocamlformat', 'ocp-indent']
   \}
 if !google3
         let g:ale_fixers.go = ['gofmt', 'goimports']
@@ -346,6 +355,9 @@ nnoremap <silent> <Leader>L        :Lines<cr>
 nnoremap <silent> <Leader>ag       :Ag <c-r><c-w><cr>
 nnoremap <silent> <leader>AG       :Ag <c-r><c-a><cr>
 xnoremap <silent> <leader>ag       y:Ag <c-r>"<cr>
+nnoremap <silent> <Leader>rg       :Rg <c-r><c-w><cr>
+nnoremap <silent> <leader>RG       :Rg <c-r><c-a><cr>
+xnoremap <silent> <leader>rg       y:Rg <c-r>"<cr>
 nnoremap <silent> <Leader>`        :Marks<cr>
 
 inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 500 --min 5')
@@ -431,7 +443,7 @@ if has_key(g:plugs, 'coc.nvim')
     \ 'coc-python',
     \)
   call coc#config('languageserver', {
-    \ "ocaml-lsp": {
+    \ "ocaml": {
     \   "command": "opam",
     \     "args": ["config", "exec", "--", "ocamllsp"],
     \     "filetypes": ["ocaml", "reason"],

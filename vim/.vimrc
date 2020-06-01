@@ -27,26 +27,27 @@ let s:darwin = has('mac')
 call plug#begin('~/.vim/plugged')
 
 " edit
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-repeat' " . to repeat last command
-Plug 'junegunn/vim-easy-align'
-Plug 'junegunn/vim-after-object'
-Plug 'junegunn/vim-journal'
-Plug 'tpope/vim-endwise'
-Plug 'brooth/far.vim' " find and replace
-Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
-Plug 'terryma/vim-expand-region'
 Plug 'AndrewRadev/splitjoin.vim'
 Plug 'AndrewRadev/switch.vim' " -
+Plug 'brooth/far.vim' " find and replace
+Plug 'junegunn/vim-after-object'
+Plug 'junegunn/vim-easy-align'
+Plug 'junegunn/vim-journal'
 Plug 'Raimondi/delimitMate'
+Plug 'simnalamburt/vim-mundo', { 'on': 'MundoToggle' }
+Plug 'terryma/vim-expand-region'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-repeat' " . to repeat last command
+Plug 'tpope/vim-surround'
 Plug 'vim-scripts/ReplaceWithRegister'
 
 " view
-Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
-Plug 'justinmk/vim-gtfo' " gof, got
-Plug 'junegunn/vim-peekaboo'
-Plug 'junegunn/vim-journal'
 Plug 'dhruvasagar/vim-zoom' " <c-w>m
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/vim-journal'
+Plug 'junegunn/vim-peekaboo'
+Plug 'justinmk/vim-gtfo' " gof, got
+Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
 Plug 'Yggdroot/indentLine', { 'on': 'IndentLinesEnable' }
 
 " navigate
@@ -59,29 +60,29 @@ Plug 'junegunn/fzf.vim'
 Plug 'junegunn/vim-slash'
 
 " code
-Plug 'w0rp/ale'
 Plug 'ervandew/supertab'
-Plug 'tpope/vim-commentary'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install() }}
 Plug 'sheerun/vim-polyglot'
+Plug 'tpope/vim-commentary'
+Plug 'w0rp/ale'
 
 " vcs
+Plug 'junegunn/gv.vim'
 Plug 'mhinz/vim-signify'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-rhubarb'
-Plug 'junegunn/gv.vim'
 
 " appearance
 Plug 'itchyny/lightline.vim'
 Plug 'maximbaz/lightline-ale'
 
 " themes
-Plug 'jnurmine/Zenburn'
-Plug 'morhetz/gruvbox'
 Plug 'AlessandroYorba/Despacio'
-Plug 'romainl/Apprentice'
+Plug 'jnurmine/Zenburn'
 Plug 'junegunn/seoul256.vim'
+Plug 'morhetz/gruvbox'
+Plug 'romainl/Apprentice'
 
 " markdown
 Plug 'plasticboy/vim-markdown', { 'for': 'markdown' }
@@ -115,40 +116,36 @@ augroup END
 set clipboard=unnamed           " global clipboard
 set cmdheight=2
 set colorcolumn=80
-set completeopt=menuone
+set completeopt=menuone,preview
 set cursorline
 set diffopt=filler,vertical
-set directory=/tmp//,.
+set expandtab
 set foldlevelstart=99           " start editing with no folds closed
 set hidden                      " buffers become hidden when abandoned
-set ignorecase                  " ignore case when searching
+set ignorecase smartcase        " ignore case when searching
 set lazyredraw                  " do not update the display while executing macros
-set laststatus=2
-set modeline
-set modelines=1
+set modelines=2
 set nojoinspaces
-set nolist                      " do not show invisible characters
+set list
 set noshowmode                  " do not show what mode because we already have statusline
 set nostartofline
 set number
 set shiftround                  " round indent to multiple of shiftwidth when indenting with '<' and '>'
 set shiftwidth=2                " number of spaces to use for each step of (auto)indent
-set expandtab
 set shortmess=aIT               " short message
 set showcmd                     " shows visual selection info
 set showmatch                   " show matching parenthesis
-set smartcase
 set softtabstop=2               " when using <BS>, two spaces are considered a tab
 set tabstop=2                   " a tab is four spaces
 set timeoutlen=500              " time in milliseconds that is waited for a key code or mapped key sequence to complete
-set virtualedit=block           " allow virtual editing only in visual block mode
-set visualbell t_vb=            " no beeping
-set wildmode=full
-silent! set cryptmethod=blowfish2
+set visualbell
 
 " tmp files
 set backupdir=/tmp//,.
-set undodir=/tmp//,.
+set directory=/tmp//,.
+set undodir=/tmp,.
+set undofile
+
 " mouse
 silent! set ttymouse=xterm2
 set mouse=a
@@ -158,7 +155,6 @@ set mouse=a
 "------------------------------------------------------------------------------
 " ## LANG SETTINGS # {{{
 "------------------------------------------------------------------------------
-
 
 autocmd FileType go setlocal shiftwidth=4 tabstop=4 softtabstop=4
 autocmd FileType cpp setlocal shiftwidth=4 tabstop=4 softtabstop=4
@@ -180,8 +176,8 @@ noremap <C-b> <C-u>
 nnoremap ; :
 nnoremap <leader>; ;
 nnoremap 0 ^
-cnoremap $v e ~/.vimrc
-cnoremap $n e ~/Dropbox/Notes/
+nnoremap <leader>v :e ~/.vimrc
+nnoremap <leader>n :e ~/workplace/notes/
 
 " escape
 inoremap jk <Esc>
@@ -281,7 +277,10 @@ nnoremap Q @q
 " ## PLUGIN SETTINGS # {{{
 "------------------------------------------------------------------------------
 
-" splitjoin.vim
+" @vim-after-object
+autocmd VimEnter * silent! call after_object#enable('=', ':', '#', ' ', '|')
+
+" @splitjoin.vim
 let g:splitjoin_split_mapping = ''
 let g:splitjoin_join_mapping = ''
 nnoremap sj :SplitjoinSplit<cr>
@@ -385,8 +384,6 @@ command! PlugHelp call fzf#run(fzf#wrap({
   \ 'sink':   function('s:plug_help_sink')}))
 
 " @vim-mundo
-set undofile
-set undodir=~/.vim/undo
 nnoremap U :MundoToggle<cr>
 if has('python3')
     let g:mundo_prefer_python3 = 1

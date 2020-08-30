@@ -39,12 +39,11 @@ Plug 'AndrewRadev/splitjoin.vim'
 "}}}
 Plug 'AndrewRadev/switch.vim'
   let g:switch_mapping = "-"
-Plug 'brooth/far.vim' " find and replace
+Plug 'brooth/far.vim', { 'commit': 'baa1b5f16ed33d378bce8cb07d435c63d8fe593c'} " find and replace
 "{{{
   nnoremap <silent> <leader>R  :Farr<cr>
   vnoremap <silent> <leader>R  :Farr<cr>
   let g:far#enable_undo=1
-  let g:far#source='rg'
 "}}}
 Plug 'junegunn/vim-after-object'
   autocmd VimEnter * silent! call after_object#enable('=', ':', '#', ' ', '|')
@@ -135,10 +134,8 @@ else
 endif
 Plug 'junegunn/fzf.vim'
 "{{{
-  command! -nargs=? -complete=dir AF
-    \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
-    \   'source': 'fd --type f --hidden --follow --exclude .git --no-ignore . '.expand(<q-args>)
-    \ })))
+  let g:fzf_preview_window = 'right:60%'
+  inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
 
   nnoremap <silent> <Leader><Leader> :Files<cr>
   nnoremap <silent> <Leader>C        :Commands<cr>
@@ -169,16 +166,17 @@ Plug 'junegunn/vim-slash'
 " code
 Plug 'ervandew/supertab'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
-Plug 'neoclide/coc.nvim', {'do': { -> coc#util#install() }}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
-Plug 'w0rp/ale'
+Plug 'w0rp/ale', {'tag': 'v2.7.0'}
+
 "{{{
   let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
   let g:ale_set_loclist = 0
   let g:ale_echo_msg_format = '[%linter%]: %s'
   let g:ale_linters_explicit = 1
-  let g:ale_linters = {'go': ['gofmt'], }
+  let g:ale_linters = {'go': ['gofmt']}
   let g:ale_fixers = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
     \ 'haskell': ['brittany'],
@@ -186,6 +184,7 @@ Plug 'w0rp/ale'
     \ 'ocaml': ['ocamlformat', 'ocp-indent']
     \}
   if !google3
+    let g:ale_fixers.markdown = ['prettier']
     let g:ale_fixers.go = ['gofmt', 'goimports']
     let g:ale_fixers.java = ['google_java_format']
   endif
@@ -269,6 +268,7 @@ if has_key(g:plugs, 'coc.nvim')
     \ 'coc-go',
     \ 'coc-java',
     \ 'coc-python',
+    \ 'coc-sh',
     \)
   call coc#config('languageserver', {
     \ "ocaml": {

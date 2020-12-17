@@ -148,18 +148,16 @@ Plug 'junegunn/fzf.vim'
   xnoremap <silent> <leader>rg       y:Rg <c-r>"<cr>
   nnoremap <silent> <Leader>`        :Marks<cr>
 
-  command! -nargs=? -complete=dir AF
-    \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
-    \   'source': 'fd --type f --hidden --follow --exclude .git --no-ignore . '.expand(<q-args>)
-    \ })))
+  function! RipgrepFzf(query, fullscreen)
+    let command_fmt = 'rg --column --line-number --no-heading --color=always --smart-case %s || true'
+    let initial_command = printf(command_fmt, shellescape(a:query))
+    let reload_command = printf(command_fmt, '{q}')
+    let options = {'options': ['--phony', '--query', a:query, '--bind', 'change:reload:'.reload_command]}
+    let options = fzf#vim#with_preview(options, 'right', 'ctrl-/')
+    call fzf#vim#grep(initial_command, 1, options, a:fullscreen)
+  endfunction
 
-  command! -bang -nargs=* Ag
-  \ call fzf#vim#ag(<q-args>, fzf#vim#with_preview('right', 'ctrl-/'), <bang>0)
-
-  command! -bang -nargs=* Rg
-  \ call fzf#vim#grep(
-  \   "rg --column --line-number --no-heading --color=always --smart-case -- ".shellescape(<q-args>), 1,
-  \   fzf#vim#with_preview('right', 'ctrl-/'), <bang>0)
+  command! -nargs=* -bang RG call RipgrepFzf(<q-args>, <bang>0)
 
   inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 500 --min 5')
   imap <c-x><c-k> <plug>(fzf-complete-word)
@@ -176,7 +174,7 @@ Plug 'junegunn/vim-slash'
 "}}}
 
 " code
-Plug 'ervandew/supertab'
+Plug 'honza/vim-snippets'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sheerun/vim-polyglot'
@@ -190,6 +188,7 @@ Plug 'w0rp/ale'
   let g:ale_linters = {'go': ['gofmt']}
   let g:ale_fixers = {
     \ '*': ['remove_trailing_lines', 'trim_whitespace'],
+    \ 'dart': ['dartfmt'],
     \ 'haskell': ['brittany'],
     \ 'python': ['isort', 'yapf'],
     \ 'ocaml': ['ocamlformat', 'ocp-indent']
@@ -233,6 +232,8 @@ Plug 'wookayin/vim-typora', { 'for': 'markdown'}
 " latex
 Plug 'lervag/vimtex', { 'for': 'tex' }
 
+Plug 'dart-lang/dart-vim-plugin'
+
 Plug 'tpope/vim-sensible'
 
 call plug#end()
@@ -241,6 +242,7 @@ call plug#end()
 "{{{
 if has_key(g:plugs, 'coc.nvim')
   inoremap <silent><expr> <c-n> coc#refresh()
+
 
   function! s:show_documentation()
     if (index(['vim', 'help'], &filetype) >= 0)
@@ -277,9 +279,11 @@ if has_key(g:plugs, 'coc.nvim')
     \ 'coc-tsserver',
     \ 'coc-omnisharp',
     \ 'coc-clangd',
+    \ 'coc-flutter',
     \ 'coc-java',
-    \ 'coc-python',
+    \ 'coc-pyright',
     \ 'coc-sh',
+    \ 'coc-snippets',
     \)
   call coc#config('languageserver', {
     \ "ocaml": {
@@ -314,9 +318,6 @@ if has_key(g:plugs, 'coc.nvim')
     \ },
     \})
   call coc#config('python', {
-    \ 'linting': {
-    \   'enabled': 0,
-    \ },
     \ 'venvFolders': ['.venv'],
     \})
 endif

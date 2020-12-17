@@ -1,4 +1,4 @@
 {
 	"diagnostic.displayByAle": true,
-	"suggest.autoTrigger": "trigger"
+  "snippets.ultisnips.enable": false
 }

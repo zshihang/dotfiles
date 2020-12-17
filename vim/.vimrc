@@ -39,7 +39,7 @@ Plug 'AndrewRadev/splitjoin.vim'
 "}}}
 Plug 'AndrewRadev/switch.vim'
   let g:switch_mapping = "-"
-Plug 'brooth/far.vim', { 'commit': 'baa1b5f16ed33d378bce8cb07d435c63d8fe593c'} " find and replace
+Plug 'brooth/far.vim' " find and replace
 "{{{
   nnoremap <silent> <leader>R  :Farr<cr>
   vnoremap <silent> <leader>R  :Farr<cr>
@@ -117,6 +117,7 @@ Plug 'liuchengxu/vista.vim', { 'on': 'Vista!!'}
   nnoremap <F9> :Vista!!<cr>
   nnoremap <silent> <Leader>T :Vista finder fzf:coc<cr>
   let g:vista_keep_fzf_colors = 1
+  let g:vista_sidebar_width = 50
   let g:vista_default_executive = 'coc'
   let g:vista_executive_for = {
           \ 'markdown': 'toc',
@@ -134,8 +135,6 @@ else
 endif
 Plug 'junegunn/fzf.vim'
 "{{{
-  let g:fzf_preview_window = 'right:60%'
-  inoremap <expr> <c-x><c-f> fzf#vim#complete#path('fd')
 
   nnoremap <silent> <Leader><Leader> :Files<cr>
   nnoremap <silent> <Leader>C        :Commands<cr>
@@ -148,6 +147,19 @@ Plug 'junegunn/fzf.vim'
   nnoremap <silent> <leader>RG       :Rg <c-r><c-a><cr>
   xnoremap <silent> <leader>rg       y:Rg <c-r>"<cr>
   nnoremap <silent> <Leader>`        :Marks<cr>
+
+  command! -nargs=? -complete=dir AF
+    \ call fzf#run(fzf#wrap(fzf#vim#with_preview({
+    \   'source': 'fd --type f --hidden --follow --exclude .git --no-ignore . '.expand(<q-args>)
+    \ })))
+
+  command! -bang -nargs=* Ag
+  \ call fzf#vim#ag(<q-args>, fzf#vim#with_preview('right', 'ctrl-/'), <bang>0)
+
+  command! -bang -nargs=* Rg
+  \ call fzf#vim#grep(
+  \   "rg --column --line-number --no-heading --color=always --smart-case -- ".shellescape(<q-args>), 1,
+  \   fzf#vim#with_preview('right', 'ctrl-/'), <bang>0)
 
   inoremap <expr> <c-x><c-t> fzf#complete('tmuxwords.rb --all-but-current --scroll 500 --min 5')
   imap <c-x><c-k> <plug>(fzf-complete-word)
@@ -169,9 +181,8 @@ Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
-Plug 'w0rp/ale', {'tag': 'v2.7.0'}
-
-"{{{
+Plug 'w0rp/ale'
+"{{
   let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
   let g:ale_set_loclist = 0
   let g:ale_echo_msg_format = '[%linter%]: %s'
@@ -202,6 +213,7 @@ Plug 'tpope/vim-fugitive'
   nnoremap <Leader>d :Gdiff<CR>
 "}}}
 Plug 'tpope/vim-rhubarb'
+Plug 'rhysd/git-messenger.vim'
 
 " themes
 Plug 'AlessandroYorba/Despacio'
@@ -265,7 +277,6 @@ if has_key(g:plugs, 'coc.nvim')
     \ 'coc-tsserver',
     \ 'coc-omnisharp',
     \ 'coc-clangd',
-    \ 'coc-go',
     \ 'coc-java',
     \ 'coc-python',
     \ 'coc-sh',
@@ -294,6 +305,12 @@ if has_key(g:plugs, 'coc.nvim')
     \           "hlintOn": "true",
     \         }
     \       },
+    \ },
+    \ "golang": {
+    \   "command": "gopls",
+    \   "rootPatterns": ["go.mod"],
+    \   "disableWorkspaceFolders": "true",
+    \   "filetypes": ["go"]
     \ },
     \})
   call coc#config('python', {
@@ -357,6 +374,15 @@ set undofile
 " mouse
 silent! set ttymouse=xterm2
 set mouse=a
+
+" helpdoc in tab
+function! s:helptab()
+  if &buftype == 'help'
+    wincmd T
+    nnoremap <buffer> q :q<cr>
+  endif
+endfunction
+autocmd vimrc BufEnter *.txt call s:helptab()
 
 " }}}
 "------------------------------------------------------------------------------
@@ -482,7 +508,7 @@ nnoremap <leader>h :PlugHelp<cr>
 " }}}
 "------------------------------------------------------------------------------
 "------------------------------------------------------------------------------
-" ## HANDY SCRIPTS # {{{
+" ## SCRIPTS # {{{
 "------------------------------------------------------------------------------
 
 " :PlugHelp
@@ -503,7 +529,7 @@ command! PlugHelp call fzf#run(fzf#wrap({
   \ 'source': sort(keys(g:plugs)),
   \ 'sink':   function('s:plug_help_sink')}))
 
-" google / lucky
+" ?/!
 function! s:goog(pat, lucky)
   let q = '"'.substitute(a:pat, '["\n]', ' ', 'g').'"'
   let q = substitute(q, '[[:punct:] ]',
@@ -514,8 +540,6 @@ endfunction
 
 nnoremap <leader>? :call <SID>goog(expand("<cWORD>"), 0)<cr>
 nnoremap <leader>! :call <SID>goog(expand("<cWORD>"), 1)<cr>
-xnoremap <leader>? "gy:call <SID>goog(@g, 0)<cr>gv
-xnoremap <leader>! "gy:call <SID>goog(@g, 1)<cr>gv
 
 " :A
 function! s:a(cmd)
@@ -538,15 +562,6 @@ function! s:a(cmd)
     endif
   endfor
 endfunction command! A call s:a('e') command! AV call s:a('botright vertical split')
-
-" helpdoc in tab
-function! s:helptab()
-  if &buftype == 'help'
-    wincmd T
-    nnoremap <buffer> q :q<cr>
-  endif
-endfunction
-autocmd vimrc BufEnter *.txt call s:helptab()
 
 " :HL hignlight group
 function! s:hl()
@@ -592,7 +607,7 @@ if s:darwin
   command! -bang ConnectChrome call s:connect_chrome(<bang>0)
 endif
 
-" rotate color
+" <F8>
 function! s:colors(...)
   return filter(map(filter(split(globpath(&rtp, 'colors/*.vim'), "\n"),
         \                  'v:val !~ "^/usr/"'),
@@ -611,11 +626,11 @@ function! s:rotate_colors()
 endfunction
 nnoremap <silent> <F8> :call <SID>rotate_colors()<cr>
 
-" prepend line number
+" :NL (prepend line number)
 command! -range=% -nargs=1 NL
   \ <line1>,<line2>!nl -w <args> -s '. ' | perl -pe 's/^.{<args>}..$//'
 
-" count appearances
+" :Count appearances
 command! -nargs=1 Count execute printf('%%s/%s//gn', escape(<q-args>, '/')) | normal! ``
 
 

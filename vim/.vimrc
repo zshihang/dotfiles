@@ -174,12 +174,13 @@ Plug 'junegunn/vim-slash'
 "}}}
 
 " code
+Plug 'google/vim-jsonnet'
 Plug 'honza/vim-snippets'
 Plug 'michaeljsmith/vim-indent-object' " ai, ii, ai, ii
 Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'sheerun/vim-polyglot'
 Plug 'tpope/vim-commentary'
-Plug 'w0rp/ale'
+Plug 'w0rp/ale', {'tag': 'v2.7.0'}
 "{{
   let g:ale_python_flake8_options = '--ignore=E501,E402,E226'
   let g:ale_set_loclist = 0
@@ -242,6 +243,7 @@ call plug#end()
 "{{{
 if has_key(g:plugs, 'coc.nvim')
   inoremap <silent><expr> <c-n> coc#refresh()
+  inoremap <silent><expr> <tab> pumvisible() ? coc#_select_confirm() : "\<tab>"
 
 
   function! s:show_documentation()
@@ -284,6 +286,7 @@ if has_key(g:plugs, 'coc.nvim')
     \ 'coc-pyright',
     \ 'coc-sh',
     \ 'coc-snippets',
+    \ 'coc-todolist',
     \)
   call coc#config('languageserver', {
     \ "ocaml": {
